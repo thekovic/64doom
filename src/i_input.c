@@ -137,7 +137,7 @@ void pressed_key(struct controller_data *p_data) //, int player)
     event_t doom_input_event;
     struct SI_condat pressed = p_data->c[0];//player];
 
-#if 1
+#if 0
     // CHEAT WARP TO NEXT LEVEL
     if (pressed.L && pressed.Z && !pressed.R)
     {
@@ -165,7 +165,7 @@ void pressed_key(struct controller_data *p_data) //, int player)
 #endif
 
     // RUN ON/OFF
-    if (pressed.Z)
+    if (pressed.R)
     {
         shift ^= 1;
         shift_times = 0;
@@ -176,7 +176,6 @@ void pressed_key(struct controller_data *p_data) //, int player)
         doom_input_event.data1 = KEY_RSHIFT;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
-        shift_times++;
     }
     else if (shift_times == 0)
     {
@@ -186,25 +185,25 @@ void pressed_key(struct controller_data *p_data) //, int player)
         shift_times++;
     }
 
-    if (pressed.A)
+    if (pressed.Z)
     {
         doom_input_event.data1 = KEY_RCTRL;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.B)
+    if (pressed.C_down)
     {
         doom_input_event.data1 = ' ';
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.L && !pressed.R && !pressed.Z)
+    if (pressed.C_left)
     {
         doom_input_event.data1 = ',';
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.R && !pressed.L && !pressed.Z)
+    if (pressed.C_right)
     {
         doom_input_event.data1 = '.';
         doom_input_event.type = ev_keydown;
@@ -216,32 +215,32 @@ void pressed_key(struct controller_data *p_data) //, int player)
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_down)
+    if (pressed.L)
     {
         doom_input_event.data1 = KEY_ENTER;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_left && !pressed.C_right)
+    if (pressed.A && !pressed.B)
     {
         pad_weapon -= 1;
 
         if (pad_weapon < 0)
         {
-            pad_weapon = 7;
+            pad_weapon = 0;
         }
 
         doom_input_event.data1 = weapons[pad_weapon];
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_right && !pressed.C_left)
+    if (pressed.B && !pressed.A)
     {
         pad_weapon += 1;
 
         if (pad_weapon > 7)
         {
-            pad_weapon = 0;
+            pad_weapon = 7;
         }
 
         doom_input_event.data1 = weapons[pad_weapon];
@@ -295,25 +294,25 @@ void released_key(struct controller_data *r_data) //, int player)
     last_x = released.x - center_x;
     last_y = released.y - center_y;
 
-    if (released.A)
+    if (released.Z)
     {
         doom_input_event.data1 = KEY_RCTRL;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.B)
+    if (released.C_down)
     {
         doom_input_event.data1 = ' ';
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.L)
+    if (released.C_left)
     {
         doom_input_event.data1 = ',';
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.R)
+    if (released.C_right)
     {
         doom_input_event.data1 = '.';
         doom_input_event.type = ev_keyup;
@@ -325,19 +324,19 @@ void released_key(struct controller_data *r_data) //, int player)
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_down)
+    if (released.L)
     {
         doom_input_event.data1 = KEY_ENTER;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_left && !released.C_right)
+    if (released.A && !released.B)
     {
         doom_input_event.data1 = weapons[pad_weapon];
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_right && !released.C_left)
+    if (released.B && !released.A)
     {
         doom_input_event.data1 = weapons[pad_weapon];
         doom_input_event.type = ev_keyup;
