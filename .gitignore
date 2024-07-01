@@ -1,0 +1,5 @@
+build
+iwads
+.vscode
+filesystem/*.wad
+*.z64

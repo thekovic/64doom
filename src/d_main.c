@@ -662,8 +662,8 @@ extern GameMode_t current_mode;
 // should be executed (notably loading PWAD's).
 //
 char*    doom1wad = "DOOM1.WAD";
-char*    doomwad = "DOOM.WAD";
-char*    doomuwad = "DOOMU.WAD";
+char*    doomwad = "DOOMR.WAD";
+char*    doomuwad = "DOOM.WAD";
 char*    doom2wad = "DOOM2.WAD";
 
 char*    doom2fwad = "DOOM2F.WAD";

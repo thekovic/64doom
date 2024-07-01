@@ -33,28 +33,13 @@ Setup libdragon UNSTABLE branch: https://github.com/DragonMinded/libdragon/wiki/
 
 Get a copy of a supported version of Doom (Doom shareware, retail, Ultimate Doom, Doom II, Plutonia, TNT).
 
-Export two environment variables:
+Set two variables in the Makefile:
 
 `IWAD_DIRECTORY` -- the path of the directory that contains your IWAD file
 
-`IWAD_PREFIX` -- the actual IWAD filename prefix (one of `DOOM1`, `DOOM`, `DOOMU`, `DOOM2`, `PLUTONIA`, `TNT` - these are case sensitive. Must be uppercase and your wad filename must be uppercase i.e. `DOOM2.WAD`)
+`IWAD_PREFIX` -- the actual IWAD filename prefix (one of `DOOM1`, `DOOMR`, `DOOM`, `DOOM2`, `PLUTONIA`, `TNT` - these are case sensitive. Must be uppercase and your wad filename must be uppercase i.e. `DOOM2.WAD`)
 
 And run make.
-
-Result is `$(IWAD_PREFIX).z64` ready to copy to dev cart or run in emulator.
-
-Example for building DOOM2 from repo directory, with IWAD files located in your home directory under `IWADS`:
-
-`cd src`
-
-`env IWAD_DIRECTORY="~/IWADS" IWAD_PREFIX="DOOM2" make`
-
-resulting in `DOOM2.z64`
-
-If you want to build for a different game version, be sure to run make clean first. Environment variables must be set for make clean as well.
-
-`env IWAD_DIRECTORY="." IWAD_PREFIX="." make clean`
-
 
 -----------
 -SAVEGAMES-
