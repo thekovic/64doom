@@ -46,9 +46,8 @@ GameMode_t current_mode;
 static int pad_weapon = 1;
 static char weapons[8] = { '1', '2', '3', '3', '4', '5', '6', '7' };
 static int lz_count = 0;
-static int shift_times = 0;
 
-int shift = 0;
+bool always_run = false;
 
 
 // this function maps analog stick position into mouse movement event
@@ -116,22 +115,19 @@ void pressed_key(joypad_buttons_t* pressed)
     // RUN ON/OFF
     if (pressed->r)
     {
-        shift ^= 1;
-        shift_times = 0;
-    }
-
-    if (shift)
-    {
-        doom_input_event.data1 = KEY_RSHIFT;
-        doom_input_event.type = ev_keydown;
-        D_PostEvent(&doom_input_event);
-    }
-    else if (shift_times == 0)
-    {
-        doom_input_event.data1 = KEY_RSHIFT;
-        doom_input_event.type = ev_keyup;
-        D_PostEvent(&doom_input_event);
-        shift_times++;
+        always_run = !always_run;
+        if (always_run)
+        {
+            doom_input_event.data1 = KEY_RSHIFT;
+            doom_input_event.type = ev_keydown;
+            D_PostEvent(&doom_input_event);
+        }
+        else
+        {
+            doom_input_event.data1 = KEY_RSHIFT;
+            doom_input_event.type = ev_keyup;
+            D_PostEvent(&doom_input_event);
+        }
     }
 
     if (pressed->z)
@@ -326,7 +322,6 @@ void I_GetEvent(void)
     joypad_poll();
 
     joypad_buttons_t keys_pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
-    joypad_buttons_t keys_held = joypad_get_buttons_held(JOYPAD_PORT_1);
     joypad_buttons_t keys_released = joypad_get_buttons_released(JOYPAD_PORT_1);
     joypad_inputs_t pad_state = joypad_get_inputs(JOYPAD_PORT_1);
     
