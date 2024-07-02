@@ -1,136 +1,61 @@
-# Copy your IWAD to the IWAD_DIRECTORY and select corresponding prefix here
+# Copy your IWAD to the IWAD_DIRECTORY folder and select corresponding prefix here
 IWAD_DIRECTORY = iwads
-IWAD_PREFIX = DOOM2
 # Options: DOOM1 DOOMR DOOM DOOM2 PLUTONIA TNT
+IWAD_PREFIX = DOOM
 
-ROOTDIR			= $(N64_INST)
-GCCN64PREFIX = $(ROOTDIR)/bin/mips64-elf-
-CHKSUM64PATH = $(ROOTDIR)/bin/chksum64
-MKDFSPATH = $(ROOTDIR)/bin/mkdfs
-MKSPRITEPATH = $(ROOTDIR)/bin/mksprite
-HEADERPATH = $(ROOTDIR)/mips64-elf/lib
-N64TOOL = $(ROOTDIR)/bin/n64tool
-N64_SYM = $(ROOTDIR)/bin/n64sym
-N64_DSO = $(ROOTDIR)/bin/n64dso
-N64_DSOEXTERN = $(ROOTDIR)/bin/n64dso-extern
-N64_DSOMSYM = $(ROOTDIR)/bin/n64dso-msym
-HEADERNAME = header
-LIBS = -ldragon -lc -lm -ldragonsys
-PROG_NAME = $(IWAD_PREFIX)
-OPTFLAG = -O3
+SOURCE_DIR = src
+BUILD_DIR = build
 
-# function/data sections + gc-sections saves about ~200kb from output binary
-CFLAGS = -ffunction-sections -fdata-sections -falign-functions=32 -ffile-prefix-map=$(CURDIR)= -DN64 -fdiagnostics-color=always -Wno-error=switch -Wall -g -mabi=o64 -mno-shared -mno-abicalls -mno-branch-likely -mno-llsc -mno-check-zero-division -mfix4300 -std=gnu99 -march=vr4300 -mtune=vr4300 -mips3 -G4 $(OPTFLAG) -I$(ROOTDIR)/mips64-elf/include
-#-DRANGECHECK
-LINK_FLAGS = --gc-sections -G4 -g -L$(ROOTDIR)/mips64-elf/lib $(LIBS) -Tn64.ld
+include $(N64_INST)/include/n64.mk
 
-CC = $(GCCN64PREFIX)gcc
-AS = $(GCCN64PREFIX)as
-LD = $(GCCN64PREFIX)ld
-OBJCOPY = $(GCCN64PREFIX)objcopy
-OBJDUMP = $(GCCN64PREFIX)objdump
+N64_ROM_TITLE = $(IWAD_PREFIX)
 
-SRC_DIR = src
-BUILD_DIR=build
+# Uncomment to compile with various safety checks throughout the code
+# CFLAGS += -DRANGECHECK
 
-OBJS=						\
-		$(BUILD_DIR)/i_sound.o			\
-		$(BUILD_DIR)/endoom.o			\
-		$(BUILD_DIR)/dll.o			\
-		$(BUILD_DIR)/hash.o			\
-		$(BUILD_DIR)/lzfx.o			\
-		$(BUILD_DIR)/i_video.o			\
-		$(BUILD_DIR)/i_input.o			\
-		$(BUILD_DIR)/doomdef.o			\
-		$(BUILD_DIR)/doomstat.o			\
-		$(BUILD_DIR)/dstrings.o			\
-		$(BUILD_DIR)/i_system.o			\
-		$(BUILD_DIR)/i_net.o			\
-		$(BUILD_DIR)/r_draw.o			\
-		$(BUILD_DIR)/v_video.o			\
-		$(BUILD_DIR)/f_finale.o			\
-		$(BUILD_DIR)/f_wipe.o 			\
-		$(BUILD_DIR)/d_main.o			\
-		$(BUILD_DIR)/d_net.o			\
-		$(BUILD_DIR)/d_items.o			\
-		$(BUILD_DIR)/g_game.o			\
-		$(BUILD_DIR)/p_saveg.o			\
-		$(BUILD_DIR)/m_menu.o			\
-		$(BUILD_DIR)/m_misc.o			\
-		$(BUILD_DIR)/m_argv.o  			\
-		$(BUILD_DIR)/m_bbox.o			\
-		$(BUILD_DIR)/m_cheat.o			\
-		$(BUILD_DIR)/m_random.o			\
-		$(BUILD_DIR)/am_map.o			\
-		$(BUILD_DIR)/p_ceilng.o			\
-		$(BUILD_DIR)/p_doors.o			\
-		$(BUILD_DIR)/p_enemy.o			\
-		$(BUILD_DIR)/p_floor.o			\
-		$(BUILD_DIR)/p_inter.o			\
-		$(BUILD_DIR)/p_lights.o			\
-		$(BUILD_DIR)/p_map.o			\
-		$(BUILD_DIR)/p_maputl.o			\
-		$(BUILD_DIR)/p_plats.o			\
-		$(BUILD_DIR)/p_pspr.o			\
-		$(BUILD_DIR)/nodereorder.o		\
-		$(BUILD_DIR)/p_setup.o			\
-		$(BUILD_DIR)/p_sight.o			\
-		$(BUILD_DIR)/p_spec.o			\
-		$(BUILD_DIR)/p_switch.o			\
-		$(BUILD_DIR)/p_mobj.o			\
-		$(BUILD_DIR)/p_telept.o			\
-		$(BUILD_DIR)/p_tick.o			\
-		$(BUILD_DIR)/p_user.o			\
-		$(BUILD_DIR)/r_bsp.o			\
-		$(BUILD_DIR)/r_data.o			\
-		$(BUILD_DIR)/r_main.o			\
-		$(BUILD_DIR)/r_plane.o			\
-		$(BUILD_DIR)/r_segs.o			\
-		$(BUILD_DIR)/r_sky.o			\
-		$(BUILD_DIR)/r_things.o			\
-		$(BUILD_DIR)/w_wad.o			\
-		$(BUILD_DIR)/wi_stuff.o			\
-		$(BUILD_DIR)/z_zone.o			\
-		$(BUILD_DIR)/st_lib.o			\
-		$(BUILD_DIR)/st_stuff.o			\
-		$(BUILD_DIR)/hu_stuff.o			\
-		$(BUILD_DIR)/hu_lib.o			\
-		$(BUILD_DIR)/s_sound.o			\
-		$(BUILD_DIR)/info.o			\
-		$(BUILD_DIR)/sounds.o			\
-		$(BUILD_DIR)/i_main.o
+all: $(IWAD_PREFIX).z64
 
-$(PROG_NAME).z64: $(BUILD_DIR)/$(PROG_NAME).elf
-	$(OBJCOPY) $(BUILD_DIR)/$(PROG_NAME).elf $(BUILD_DIR)/$(PROG_NAME).bin -O binary
-	$(N64_SYM) $(BUILD_DIR)/$(PROG_NAME).elf $(BUILD_DIR)/$(PROG_NAME).sym
-	$(N64_DSOMSYM) $(BUILD_DIR)/$(PROG_NAME).elf $(BUILD_DIR)/$(PROG_NAME).msym
-	rm -f $(PROG_NAME).z64
-	rm -f $(BUILD_DIR)/$(PROG_NAME).dfs
-	rm -f filesystem/identifier
-	rm -f filesystem/*.wad
-	cp $(IWAD_DIRECTORY)/$(IWAD_PREFIX).WAD filesystem
-	echo $(IWAD_PREFIX).WAD > filesystem/identifier
-	$(MKDFSPATH) $(BUILD_DIR)/$(PROG_NAME).dfs ./filesystem/
-	$(N64TOOL) \
-        --header $(HEADERPATH)/$(HEADERNAME) --title $(PROG_NAME) --toc --output $(PROG_NAME).z64 $(BUILD_DIR)/$(PROG_NAME).bin --align 8 $(BUILD_DIR)/$(PROG_NAME).sym --align 8 $(BUILD_DIR)/$(PROG_NAME).msym --align 16 $(BUILD_DIR)/$(PROG_NAME).dfs
-	chmod ugo=rw $(PROG_NAME).z64
-	$(CHKSUM64PATH) $(PROG_NAME).z64
+ASSETS_MENULUMPS = $(wildcard assets/menulumps/*.bin)
+ASSETS_MIDI_INSTRUMENTS = assets/MIDI_Instruments.bin
+ASSETS_IWAD = $(IWAD_DIRECTORY)/$(IWAD_PREFIX).WAD
 
-$(BUILD_DIR)/$(PROG_NAME).elf : $(OBJS)
-	$(LD) -o $(BUILD_DIR)/$(PROG_NAME).elf $(OBJS) $(LINK_FLAGS)
+FS_MENULUMPS = $(addprefix filesystem/menulumps/, $(notdir $(ASSETS_MENULUMPS:%.bin=%.bin)))
+FS_MIDI_INSTRUMENTS = $(subst assets/, filesystem/, $(ASSETS_MIDI_INSTRUMENTS))
+FS_IWAD = $(subst $(IWAD_DIRECTORY)/, filesystem/, $(ASSETS_IWAD))
+FS_IWAD_IDENTIFIER = filesystem/iwad_identifier.txt
 
-copy: $(PROG_NAME).z64
-	cp $(PROG_NAME).z64 ~/
+filesystem/menulumps/%.bin: assets/menulumps/%.bin
+	@mkdir -p $(dir $@)
+	@echo "    [ASSET] $@"
+	@cp "$<" "$(dir $@)"
 
-all: $(PROG_NAME).z64
+$(FS_MIDI_INSTRUMENTS): $(ASSETS_MIDI_INSTRUMENTS)
+	@mkdir -p $(dir $@)
+	@echo "    [ASSET] $@"
+	@cp "$<" "$(dir $@)"
+
+$(FS_IWAD): $(ASSETS_IWAD)
+	@mkdir -p $(dir $@)
+	@echo "    [ASSET] $@"
+	@cp "$<" "$(dir $@)"
+
+$(FS_IWAD_IDENTIFIER):
+	@echo $(IWAD_PREFIX).WAD > $(FS_IWAD_IDENTIFIER)
+
+filesystem/: $(FS_MENULUMPS) $(FS_MIDI_INSTRUMENTS) $(FS_IWAD) $(FS_IWAD_IDENTIFIER)
+
+$(BUILD_DIR)/$(IWAD_PREFIX).dfs: filesystem/ $(FS_MENULUMPS) $(FS_MIDI_INSTRUMENTS) $(FS_IWAD) $(FS_IWAD_IDENTIFIER)
+
+SOURCE_FILES := $(shell find $(SOURCE_DIR)/ -type f -name '*.c' | sort)
+OBJECT_FILES := $(SOURCE_FILES:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)
+
+$(BUILD_DIR)/$(IWAD_PREFIX).elf: $(OBJECT_FILES)
+
+$(IWAD_PREFIX).z64: $(BUILD_DIR)/$(IWAD_PREFIX).dfs
 
 clean:
-	rm -f *.z64 *.elf *.msym *.sym *.bin *.dfs
-	rm -f $(BUILD_DIR)/*
+	rm -rf $(BUILD_DIR) filesystem/ *.z64
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+-include $(wildcard $(BUILD_DIR)/*.d)
 
-#############################################################
-#
-#############################################################
+.PHONY: all clean
