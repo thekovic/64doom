@@ -30,7 +30,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+// hack to appease Intellisense in my VSCode
+#ifndef WIN32
 #include <alloca.h>
+#endif
 
 #include "doomdef.h"
 
