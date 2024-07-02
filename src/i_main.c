@@ -135,6 +135,8 @@ int main(int argc, char **argv)
     center_x = pressed.x;
     center_y = pressed.y;
 
+    debug_init_isviewer();
+
     printf("64Doom by jnmartin84\n");
     printf("github.com/jnmartin84/64doom/\n");
     printf("built %s %s\n", __DATE__, __TIME__);
