@@ -596,10 +596,6 @@ void D_StartTitle(void)
     D_AdvanceDemo();
 }
 
-
-//      print title for every printed line
-char title[128];
-
 //
 // D_AddFile
 //
@@ -748,7 +744,7 @@ void IdentifyVersion(void)
 //
 void D_DoomMain(void)
 {
-    IdentifyVersion ();
+    IdentifyVersion();
 
     modifiedgame = false;
 
@@ -765,118 +761,107 @@ void D_DoomMain(void)
         deathmatch = 1;
     }
 
-    if (current_mode == pack_plut) {
-    sprintf (title,
-         "DOOM 2: Plutonia Experiment v%i.%i",
-         VERSION/100,VERSION%100);
-    }
-    else if (current_mode == pack_tnt) {
-            sprintf (title,
-         "DOOM 2: TNT - Evilution v%i.%i",
-         VERSION/100,VERSION%100);
-    }
-    else {
-    switch (gamemode)
+    if (current_mode == pack_plut)
     {
-        case retail:
-    sprintf (title,
-         "The Ultimate DOOM Startup v%i.%i",
-         VERSION/100,VERSION%100);
-    break;
-      case shareware:
-    sprintf (title,
-         "DOOM Shareware Startup v%i.%i",
-         VERSION/100,VERSION%100);
-    break;
-      case registered:
-    sprintf (title,
-         "DOOM Registered Startup v%i.%i",
-         VERSION/100,VERSION%100);
-    break;
-      case commercial:
-    sprintf (title,
-         "DOOM 2: Hell on Earth v%i.%i",
-         VERSION/100,VERSION%100);
-    break;
-      default:
-    sprintf (title,
-         "Public DOOM - v%i.%i",
-         VERSION/100,VERSION%100);
-    break;
+        printf("DOOM 2: Plutonia Experiment v%i.%i\n", VERSION / 100, VERSION % 100);
     }
+    else if (current_mode == pack_tnt)
+    {
+        printf("DOOM 2: TNT - Evilution v%i.%i\n", VERSION / 100, VERSION % 100);
     }
-
-    printf ("%s\n",title);
+    else
+    {
+        switch (gamemode)
+        {
+            case retail:
+                printf("Ultimate DOOM v%i.%i\n", VERSION / 100, VERSION % 100);
+                break;
+            case shareware:
+                printf("DOOM Shareware v%i.%i\n", VERSION / 100, VERSION % 100);
+                break;
+            case registered:
+                printf("DOOM Registered v%i.%i\n", VERSION / 100, VERSION % 100);
+                break;
+            case commercial:
+                printf("DOOM 2: Hell on Earth v%i.%i\n", VERSION / 100, VERSION % 100);
+                break;
+            default:
+                printf("Public DOOM - v%i.%i\n", VERSION / 100, VERSION % 100);
+                break;
+        }
+    }
 
     // init subsystems
-    printf ("V_Init: allocate screens.\n");
-    V_Init ();
+    printf("V_Init: allocate screens.\n");
+    V_Init();
 
-    printf ("M_LoadDefaults: Load system defaults.\n");
-    M_LoadDefaults (); // load before initing other systems
+    printf("M_LoadDefaults: Load system defaults.\n");
+    // load before initing other systems
+    M_LoadDefaults();
 
-    printf ("Z_Init: Init zone memory allocation daemon. \n");
-    Z_Init ();
+    printf("Z_Init: Init zone memory allocation daemon. \n");
+    Z_Init();
 
-    printf ("W_Init: Init WADfiles.\n");
-    W_InitMultipleFiles (wadfiles);
+    printf("W_Init: Init WADfiles.\n");
+    W_InitMultipleFiles(wadfiles);
 
     // Check and print which version is executed.
-    switch ( gamemode )
+    switch (gamemode)
     {
-      case shareware: 
-      case indetermined:
-    printf ( "%s", shareware_banner);
-    break;
-      case registered:
-      case retail:
-      case commercial:
-    printf ( "%s", commercial_banner);
-    break;
-
-      default:
-    // Ouch.
-    break;
-    }
-    switch(gamemode) {
-        case shareware:
-        printf("Game mode: shareware\n");
-        break;
+        case shareware: 
+        case indetermined:
+            printf("%s", shareware_banner);
+            break;
         case registered:
-        printf("Game mode: registered\n");
-        break;
         case retail:
-        printf("Game mode: retail\n");
-        break;
         case commercial:
-        printf("Game mode: commercial\n");
-        break;
+            printf("%s", commercial_banner);
+            break;
         default:
-        break;
+            // Ouch.
+            break;
     }
-    printf ("M_Init: Init miscellaneous info.\n");
-    M_Init ();
+    switch(gamemode)
+    {
+        case shareware:
+            printf("Game mode: shareware\n");
+            break;
+        case registered:
+            printf("Game mode: registered\n");
+            break;
+        case retail:
+            printf("Game mode: retail\n");
+            break;
+        case commercial:
+            printf("Game mode: commercial\n");
+            break;
+        default:
+            break;
+    }
 
-    printf ("R_Init: Init DOOM refresh daemon - \n");
-    R_Init ();
+    printf("M_Init: Init miscellaneous info.\n");
+    M_Init();
 
-    printf ("\nP_Init: Init Playloop state.\n");
-    P_Init ();
+    printf("R_Init: Init DOOM refresh daemon - \n");
+    R_Init();
 
-    printf ("I_Init: Setting up machine state.\n");
-    I_Init ();
+    printf("\nP_Init: Init Playloop state.\n");
+    P_Init();
 
-    printf ("D_CheckNetGame: Checking network game status.\n");
-    D_CheckNetGame ();
+    printf("I_Init: Setting up machine state.\n");
+    I_Init();
 
-    printf ("S_Init: Setting up sound.\n");
-    S_Init (snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );
+    printf("D_CheckNetGame: Checking network game status.\n");
+    D_CheckNetGame();
 
-    printf ("HU_Init: Setting up heads up display.\n");
-    HU_Init ();
+    printf("S_Init: Setting up sound.\n");
+    S_Init(snd_SfxVolume /* 8 */, snd_MusicVolume /* 8 */);
 
-    printf ("ST_Init: Init status bar.\n");
-    ST_Init ();
+    printf("HU_Init: Setting up heads up display.\n");
+    HU_Init();
+
+    printf("ST_Init: Init status bar.\n");
+    ST_Init();
 
     if (gameaction != ga_loadgame)
     {
@@ -886,7 +871,8 @@ void D_DoomMain(void)
         }
         else
         {
-            D_StartTitle(); // start up intro loop
+            // start up intro loop
+            D_StartTitle();
         }
     }
 
