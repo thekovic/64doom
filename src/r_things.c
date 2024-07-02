@@ -214,7 +214,9 @@ void R_InitSpriteDefs (char** namelist)
     // count the number of sprite names
     check = namelist;
     while (*check != NULL)
-	check++;
+    {
+        check++;
+    }
 
     numsprites = check-namelist;
 
@@ -235,7 +237,7 @@ void R_InitSpriteDefs (char** namelist)
 	memset (sprtemp,-1, sizeof(sprtemp));
 
 	maxframe = -1;
-	intname = *(int *)namelist[i];
+	intname = *((int*)(namelist[i]));
 
 	// scan the lumps,
 	//  filling in the frames for whatever is found

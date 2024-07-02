@@ -616,10 +616,10 @@ void D_AddFile(char *file)
 static char __attribute__((aligned(8))) gameid[16];
 char *get_GAMEID()
 {
-    int fd = dfs_open("identifier");
+    int fd = dfs_open("iwad_identifier.txt");
     if (fd < 0)
     {
-        I_Error("get_GAMEID: DFS could not open identifier file.\n");
+        I_Error("get_GAMEID: DFS could not open iwad_identifier file.\n");
     }
     size_t len = dfs_size(fd);
     if (len < 0 || 16 < len)
@@ -630,7 +630,7 @@ char *get_GAMEID()
 
     if (len != dfs_read(gameid, sizeof(char), len, fd))
     {
-        I_Error("get_GAMEID: DFS could not read identifier file after opening.\n");
+        I_Error("get_GAMEID: DFS could not read iwad_identifier file after opening.\n");
     }
     dfs_close(fd);
 

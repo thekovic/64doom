@@ -447,7 +447,7 @@ void I_InitMusic(void)
     reset_midiVoices();
 
     music_okay = 0;
-    mphnd = dfs_open("MIDI_Instruments");
+    mphnd = dfs_open("MIDI_Instruments.bin");
     if (-1 == mphnd)
     {
         printf("I_InitMusic: Could not open MIDI_Instruments file (%s)\n", strerror(errno));
@@ -682,7 +682,7 @@ int Mus_Register(void *musdata)
                 }
 #endif
                 // open MIDI Instrument Set file from ROM
-                hnd = dfs_open("MIDI_Instruments");
+                hnd = dfs_open("MIDI_Instruments.bin");
                 if (hnd < 0)
                 {
 #ifdef RANGECHECK

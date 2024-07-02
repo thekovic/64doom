@@ -1,5 +1,5 @@
 build
 iwads
 .vscode
-filesystem/*.wad
+filesystem
 *.z64
