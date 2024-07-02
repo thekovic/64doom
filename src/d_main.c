@@ -81,9 +81,6 @@ extern int return_from_D_DoomMain;
 
 unsigned long I_GetTime(void);    
 
-extern surface_t* lockVideo(int wait);
-extern void unlockVideo(surface_t* dc);
-
 extern volatile uint64_t timekeeping;
 
 extern surface_t *_dc;
@@ -400,13 +397,6 @@ void D_Display(void)
 
     I_FinishUpdate();
 }
-
-// use this to hold _dc->buffer pointer whenever we get a surface in D_DoomLoop
-// now each R_DrawColumn/R_DrawSpan call only needs one "lw" instruction to get screen
-// instead of two
-// saves (num cols + num spans) "lw" instructions per rendered frame
-// that is 1000+ loads per frame
-void *bufptr;
 
 //
 //  D_DoomLoop
@@ -879,14 +869,16 @@ void D_DoomMain(void)
     // clear the console as part of clearing screen before game starts
     console_clear();
     console_close();
+    // close display that was created by console module
+    display_close();
 
-    // clear screen before game starts
-    for(int i=0;i<2;i++)
+    // create main 320x200 VGA display
+    display_init( (resolution_t)
     {
-        _dc = lockVideo(1);
-        memset(_dc->buffer, 0, SCREENWIDTH*SCREENHEIGHT*2);
-        unlockVideo(_dc);
-    }
+        .width = SCREENWIDTH,
+        .height = SCREENHEIGHT,
+        .interlaced = false,
+    }, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE);
 
     D_DoomLoop();  // never returns
 }

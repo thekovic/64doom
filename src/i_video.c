@@ -42,40 +42,20 @@ void I_FinishUpdate(void);
 
 // globals
 
-// I don't want to rename this across the code base, it used to be display_context_t 
-// I started this port with libdragon in 2014
-// it did not expose a pointer to the buffer display_context_t was associated with
-// and I had to use __safe_buffer[_dc-1] to access it directly
-// I really like libdragon 9 years later though, much nicer
-surface_t *_dc;
+// main display
+surface_t* _dc;
 
-surface_t *lockVideo(int wait)
-{
-    if (wait)
-    {
-        return display_get();
-    }
-    else
-    {
-        return display_try_get();
-    }
-}
-
-void unlockVideo(surface_t *dc)
-{
-    if (dc)
-    {
-        display_show(dc);
-    }
-}
-
-extern void* bufptr;
+// use this to hold _dc->buffer pointer whenever we get a surface in D_DoomLoop
+// now each R_DrawColumn/R_DrawSpan call only needs one "lw" instruction to get screen
+// instead of two
+// saves (num cols + num spans) "lw" instructions per rendered frame
+// that is 1000+ loads per frame
+void *bufptr;
 
 void I_StartFrame(void)
 {
-    _dc = lockVideo(1);
-    // get the buffer address pointer from the surface once per frame instead of per every column/span
-    bufptr = (void*)_dc->buffer;
+    _dc = display_get();
+    bufptr = _dc->buffer;
 }
 
 void I_ShutdownGraphics(void)
@@ -89,21 +69,20 @@ void I_UpdateNoBlit(void)
 
 void I_FinishUpdate(void)
 {
-    unlockVideo(_dc);
+    display_show(_dc);
 }
-extern void* bufptr;
+
 //
 // I_ReadScreen
 //
-void I_ReadScreen(uint16_t* scr)
+void I_ReadScreen(uint16_t* screen)
 {
-    memcpy(scr,bufptr,320*200*2);
+    memcpy(screen, bufptr, 320*200*2);
 }
 
 //
 // Palette stuff.
 //
-
 
 void I_ForcePaletteUpdate(void)
 {
@@ -168,13 +147,6 @@ void I_SetDefaultPalette(void)
 
 void I_InitGraphics(void)
 {
-    display_init( (resolution_t)
-	{
-		.width = SCREENWIDTH,
-		.height = SCREENHEIGHT,
-		.interlaced = false,
-	}, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE );
-
     I_SetDefaultPalette();
 
     palarray = current_palarray;

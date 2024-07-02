@@ -43,8 +43,6 @@
 #include "i_system.h"
 
 extern surface_t* _dc;
-extern void unlockVideo(surface_t* _dc);
-extern surface_t* lockVideo(int i);
 
 void DebugOutput_String_For_IError(const char *str, int lineNumber, int good);
 
@@ -221,12 +219,12 @@ void I_Error(const char *fmt, ...)
     // in case we haven't reached I_InitGraphics yet
     printf("I_Error: %s\n", errstr);
 #if 1
-    unlockVideo(_dc);
+    display_show(_dc);
     for(int i=0;i<2;i++)
     {
-        _dc = lockVideo(1);
+        _dc = display_get();
         DebugOutput_String_For_IError(errstr, 0, 0);
-        unlockVideo(_dc);
+        display_show(_dc);
     }    
 #endif
     D_QuitNetGame();

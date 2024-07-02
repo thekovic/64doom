@@ -6,8 +6,6 @@
 #include "doomdef.h"
 #include "w_wad.h"
 
-extern void unlockVideo(surface_t* _dc);
-extern surface_t* lockVideo(int i);
 extern surface_t* _dc;
 
 extern int mus_playing;
@@ -55,7 +53,7 @@ void DoomIsOver(void)
     free((void*)((uintptr_t)mainzone & (uintptr_t)0x8FFFFFFF));
     // otherwise there isn't enough memory to reallocate the frame buffers
     // and nothing else works
-    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
+    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE);
 
     for (int i=0;i<2;i++)
     {
@@ -66,7 +64,7 @@ void DoomIsOver(void)
         int y; int x;
         int n = 0;
 
-        _dc = lockVideo(1);
+        _dc = display_get();
         graphics_fill_screen(_dc, cga_pal[4]);
         for (y=0;y<25;y++)
         {
@@ -82,11 +80,6 @@ void DoomIsOver(void)
             }
         }
 
-        unlockVideo(_dc);
-    }
-
-    while (1)
-    {
-        // show's over, go home
+        display_show(_dc);
     }
 }
