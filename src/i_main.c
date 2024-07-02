@@ -114,17 +114,16 @@ void check_and_init_mempak(void)
     }
 }
 
-
 extern int center_x, center_y;
 
-int main(int argc, char **argv)
+int main()
 {
     console_init();
     console_set_render_mode(RENDER_AUTOMATIC);
-    if (dfs_init( DFS_DEFAULT_LOCATION ) != DFS_ESUCCESS)
+    if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS)
     {
         printf("Could not initialize filesystem!\n");
-        while(1);
+        return 1;
     }
     controller_init();
 
@@ -137,29 +136,28 @@ int main(int argc, char **argv)
 
     debug_init_isviewer();
 
-    printf("64Doom by jnmartin84\n");
-    printf("github.com/jnmartin84/64doom/\n");
-    printf("built %s %s\n", __DATE__, __TIME__);
+    printf("ClassicDoomN64 by the_kovic\n");
+    printf("https://github.com/thekovic/ClassicDoomN64");
+    printf("\nBased on 64Doom by jnmartin84\n");
+    printf("ROM build: %s %s\n", __DATE__, __TIME__);
 
-    int available_memory_size = get_memory_size();
-    //printf("Available memory: %d bytes\n", *(int *)(0x80000318));
-
-    if(available_memory_size != 0x800000)
+    if(!is_memory_expanded())
     {
-        printf("\n***********************************");
-        printf("Expansion Pak not found.\n");
-        printf("It is required to run 64Doom.\n");
-        printf("Please turn off the Nintendo 64,\ninstall Expansion Pak,\nand try again.\n");
         printf("***********************************\n");
-        while(1) {}
+        printf("Expansion Pak not found.\n");
+        printf("It is required to run ClassicDoomN64.\n");
+        printf("Please turn off the Nintendo 64,\ninsert Expansion Pak, and try again.\n");
+        printf("***********************************\n");
+        return 1;
     }
 
-    //printf("Expansion Pak found.\n");
+    printf("Expansion Pak found.\n");
 
     printf("Checking for Mempak:\n");
     check_and_init_mempak();
 
     D_DoomMain();
+    
     DoomIsOver();
 
     return 0;
