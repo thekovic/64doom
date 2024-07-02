@@ -37,17 +37,16 @@ extern void DoomIsOver();
 
 void check_and_init_mempak(void)
 {
-    struct controller_data output;
-    get_accessories_present(&output);
+    joypad_accessory_type_t pak_type = joypad_get_accessory_type(JOYPAD_PORT_1);
 
-    switch (identify_accessory(0))
+    switch (pak_type)
     {
-        case ACCESSORY_NONE:
+        case JOYPAD_ACCESSORY_TYPE_NONE:
         {
             printf("No accessory inserted!\n");
             break;
         }
-        case ACCESSORY_MEMPAK:
+        case JOYPAD_ACCESSORY_TYPE_CONTROLLER_PAK:
         {
             int err;
             // I left the below in the code #ifdef'd out for when I needed an easy way to nuke a controller pak
@@ -106,35 +105,27 @@ void check_and_init_mempak(void)
 
             break;
         }
-        case ACCESSORY_RUMBLEPAK:
+        default:
         {
-            printf("Cannot read data off of rumblepak!\n");
+            printf("Cannot read data from this accessory type!\n");
             break;
         }
     }
 }
 
-extern int center_x, center_y;
-
 int main()
 {
     console_init();
     console_set_render_mode(RENDER_AUTOMATIC);
+    debug_init_isviewer();
+
     if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS)
     {
         printf("Could not initialize filesystem!\n");
         return 1;
     }
-    controller_init();
 
-    // center joystick...
-    controller_scan();
-    struct controller_data keys_pressed = get_keys_down();
-    struct SI_condat pressed = keys_pressed.c[0];
-    center_x = pressed.x;
-    center_y = pressed.y;
-
-    debug_init_isviewer();
+    joypad_init();
 
     printf("ClassicDoomN64 by the_kovic\n");
     printf("https://github.com/thekovic/ClassicDoomN64");

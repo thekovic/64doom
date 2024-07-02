@@ -48,69 +48,20 @@ static char weapons[8] = { '1', '2', '3', '3', '4', '5', '6', '7' };
 static int lz_count = 0;
 static int shift_times = 0;
 
-int controller_mapping = 0;
-int last_x = 0;
-int last_y = 0;
-int center_x = 0;
-int center_y = 0;
 int shift = 0;
 
-void pressed_key(struct controller_data *p_data);//, int player);
-void held_key(struct controller_data *h_data);//, int player);
-void released_key(struct controller_data *r_data);//, int player);
 
-int current_player_for_input = 0;
-
-
-//
-// I_GetEvent
-// called by I_StartTic, scans player 1 controller for keys
-// held_key is only used to scan analog stick to handle "mouse" event
-// pressed_key/released_key are used to handle "keyboard" events
-//
-void I_GetEvent(void)
-{
-    controller_scan();
-
-    struct controller_data keys_pressed = get_keys_down();
-    struct controller_data keys_held = get_keys_held();
-    struct controller_data keys_released = get_keys_up();
-    // one of these days...
-    current_player_for_input = 0;
-    pressed_key(&keys_pressed);//,0);
-    held_key(&keys_held);//,0);
-    released_key(&keys_released);//,0);
-}
-
-
-//
-// I_StartTic
-// just calls I_GetEvent
-//
-void I_StartTic(void)
-{
-    I_GetEvent();
-}
-
-
-//
-// held_key
 // this function maps analog stick position into mouse movement event
-//
-void held_key(struct controller_data *h_data) //, int player)
+void stick_to_mouse_event(int8_t stick_x, int8_t stick_y)
 {
-    struct SI_condat held = h_data->c[0];//player];
     short mouse_x;
     short mouse_y;
 
-    last_x = held.x - center_x;
-    last_y = held.y - center_y;
-
     // x,y in (-32,32),(-32,32) "dead zone" in center 
-    if ( (last_x < -32) || (last_x > 32) || (last_y < -32) || (last_y > 32) )
+    if ( (stick_x < -32) || (stick_x > 32) || (stick_y < -32) || (stick_y > 32) )
     {
-        mouse_x = last_x << 1;
-        mouse_y = last_y << 1;
+        mouse_x = stick_x << 1;
+        mouse_y = stick_y << 1;
 
         if (mouse_x || mouse_y)
         {
@@ -127,15 +78,13 @@ void held_key(struct controller_data *h_data) //, int player)
 }
 
 //
-// pressed_key
 // handle pressed buttons that are mapped to keyboard event operations such as
 // moving, shooting, opening doors, toggling run mode
 // also handles out-of-band input operations like toggling GOD MODE, idclev
 //
-void pressed_key(struct controller_data *p_data) //, int player)
+void pressed_key(joypad_buttons_t* pressed)
 {
     event_t doom_input_event;
-    struct SI_condat pressed = p_data->c[0];//player];
 
 #if 0
     // CHEAT WARP TO NEXT LEVEL
@@ -165,7 +114,7 @@ void pressed_key(struct controller_data *p_data) //, int player)
 #endif
 
     // RUN ON/OFF
-    if (pressed.R)
+    if (pressed->r)
     {
         shift ^= 1;
         shift_times = 0;
@@ -185,43 +134,43 @@ void pressed_key(struct controller_data *p_data) //, int player)
         shift_times++;
     }
 
-    if (pressed.Z)
+    if (pressed->z)
     {
         doom_input_event.data1 = KEY_RCTRL;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_down)
+    if (pressed->c_down)
     {
         doom_input_event.data1 = ' ';
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_left)
+    if (pressed->c_left)
     {
         doom_input_event.data1 = ',';
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_right)
+    if (pressed->c_right)
     {
         doom_input_event.data1 = '.';
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.C_up)
+    if (pressed->c_up)
     {
         doom_input_event.data1 = KEY_TAB;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.L)
+    if (pressed->l)
     {
         doom_input_event.data1 = KEY_ENTER;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.A && !pressed.B)
+    if (pressed->a && !pressed->b)
     {
         pad_weapon -= 1;
 
@@ -234,7 +183,7 @@ void pressed_key(struct controller_data *p_data) //, int player)
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.B && !pressed.A)
+    if (pressed->b && !pressed->a)
     {
         pad_weapon += 1;
 
@@ -247,31 +196,31 @@ void pressed_key(struct controller_data *p_data) //, int player)
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.up)
+    if (pressed->d_up)
     {
         doom_input_event.data1 = KEY_UPARROW;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.down)
+    if (pressed->d_down)
     {
         doom_input_event.data1 = KEY_DOWNARROW;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.left)
+    if (pressed->d_left)
     {
         doom_input_event.data1 = KEY_LEFTARROW;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.right)
+    if (pressed->d_right)
     {
         doom_input_event.data1 = KEY_RIGHTARROW;
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
-    if (pressed.start)
+    if (pressed->start)
     {
         doom_input_event.data1 = KEY_ESCAPE;
         doom_input_event.type = ev_keydown;
@@ -279,99 +228,121 @@ void pressed_key(struct controller_data *p_data) //, int player)
     }
 }
 
-
 //
-// released_key
 // handle released buttons that are mapped to keyboard event operations such as
 // moving, shooting, opening doors, etc
 //
-void released_key(struct controller_data *r_data) //, int player)
+void released_key(joypad_buttons_t* released)
 {
     event_t doom_input_event;
 
-    struct SI_condat released = r_data->c[0];//player];
-
-    last_x = released.x - center_x;
-    last_y = released.y - center_y;
-
-    if (released.Z)
+    if (released->z)
     {
         doom_input_event.data1 = KEY_RCTRL;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_down)
+    if (released->c_down)
     {
         doom_input_event.data1 = ' ';
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_left)
+    if (released->c_left)
     {
         doom_input_event.data1 = ',';
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_right)
+    if (released->c_right)
     {
         doom_input_event.data1 = '.';
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.C_up)
+    if (released->c_up)
     {
         doom_input_event.data1 = KEY_TAB;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.L)
+    if (released->l)
     {
         doom_input_event.data1 = KEY_ENTER;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.A && !released.B)
+    if (released->a && !released->b)
     {
         doom_input_event.data1 = weapons[pad_weapon];
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.B && !released.A)
+    if (released->b && !released->a)
     {
         doom_input_event.data1 = weapons[pad_weapon];
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.up)
+    if (released->d_up)
     {
         doom_input_event.data1 = KEY_UPARROW;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.down)
+    if (released->d_down)
     {
         doom_input_event.data1 = KEY_DOWNARROW;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.left)
+    if (released->d_left)
     {
         doom_input_event.data1 = KEY_LEFTARROW;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.right)
+    if (released->d_right)
     {
         doom_input_event.data1 = KEY_RIGHTARROW;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
-    if (released.start)
+    if (released->start)
     {
         doom_input_event.data1 = KEY_ESCAPE;
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
+}
+
+//
+// called by I_StartTic, scans player 1 controller for keys
+// held_key is only used to scan analog stick to handle "mouse" event
+// pressed_key/released_key are used to handle "keyboard" events
+//
+void I_GetEvent(void)
+{
+    joypad_poll();
+
+    joypad_buttons_t keys_pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+    joypad_buttons_t keys_held = joypad_get_buttons_held(JOYPAD_PORT_1);
+    joypad_buttons_t keys_released = joypad_get_buttons_released(JOYPAD_PORT_1);
+    joypad_inputs_t pad_state = joypad_get_inputs(JOYPAD_PORT_1);
+    
+    stick_to_mouse_event(pad_state.stick_x, pad_state.stick_y);
+    pressed_key(&keys_pressed);
+    released_key(&keys_released);
+}
+
+
+//
+// I_StartTic
+// just calls I_GetEvent
+//
+void I_StartTic(void)
+{
+    I_GetEvent();
 }
 
 static char __attribute__((aligned(8))) clevstr[9];

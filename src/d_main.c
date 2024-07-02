@@ -145,15 +145,10 @@ int        eventtail;
 // D_PostEvent
 // Called by the I/O functions when input is detected
 //
-extern int current_player_for_input;
 void D_PostEvent(event_t* ev)
 {
-    ev->player = current_player_for_input;
+    ev->player = 0;
     events[eventhead] = *ev;
-
-//d_main.c: In function 'D_PostEvent':
-//d_main.c:186: warning: operation on 'eventhead' may be undefined
-//    eventhead = (++eventhead)&(MAXEVENTS-1);
     eventhead += 1;
     eventhead &= (MAXEVENTS-1);
 }
