@@ -36,12 +36,9 @@
 #ifndef __TABLES__
 #define __TABLES__
 
-#ifdef LINUX
-#include <math.h>
-#else
-#define PI				3.141592657
-#endif
-
+// include libdragon header for fast math
+#include <libdragon.h>
+#define PI				3.141592657f
 
 #include "m_fixed.h"
 	
@@ -53,11 +50,10 @@
 #define ANGLETOFINESHIFT	19		
 
 // Binary Angle Measument, BAM.
-#define ANG45			0x20000000
-#define ANG90			0x40000000
+#define ANG45		0x20000000
+#define ANG90		0x40000000
 #define ANG180		0x80000000
 #define ANG270		0xc0000000
-
 
 #define SLOPERANGE		2048
 #define SLOPEBITS		11
@@ -65,9 +61,19 @@
 
 typedef unsigned angle_t;
 
+static inline int32_t  __attribute__((always_inline)) finesine(int32_t x)
+{
+    return (int32_t) (FRACUNIT * fm_sinf((x + 0.5f) * PI * 2 / FINEANGLES));
+}
+
+static inline int32_t __attribute__((always_inline)) finecosine(int32_t x)
+{
+    return finesine(x + 2048);
+}
+
+static inline int32_t  __attribute__((always_inline)) finetangentf(int32_t x)
+{
+    return (int32_t) (FRACUNIT * tanf((x - (FINEANGLES / 4) + 0.5f) * PI * 2 / FINEANGLES));
+}
+
 #endif
-//-----------------------------------------------------------------------------
-//
-// $Log:$
-//
-//-----------------------------------------------------------------------------
