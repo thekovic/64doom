@@ -109,7 +109,7 @@ void F_StartFinale (void)
       // DOOM 1 - E1, E3 or E4, but each nine missions
       case shareware:
       case registered:
-      case retail:
+      case ultimate:
       {
         S_ChangeMusic(mus_victor, true);
         
@@ -706,7 +706,7 @@ void F_Drawer (void)
         switch (gameepisode)
         {
             case 1:
-                if ( gamemode == retail )
+                if ( gamemode == ultimate )
                     V_DrawPatch (0, 0, W_CacheLumpName("CREDIT",PU_CACHE));
                 else
                     V_DrawPatch (0, 0, W_CacheLumpName("HELP2",PU_CACHE));

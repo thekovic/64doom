@@ -482,7 +482,7 @@ void D_DoAdvanceDemo(void)
     paused = false;
     gameaction = ga_nothing;
 
-    if (gamemode == retail)
+    if (gamemode == ultimate)
     {
         demosequence = (demosequence+1)%7;
     }
@@ -545,7 +545,7 @@ void D_DoAdvanceDemo(void)
             {
                 pagetic = 200;
 
-                if (gamemode == retail)
+                if (gamemode == ultimate)
                 {
                    pagename = "CREDIT";
                 }
@@ -693,7 +693,7 @@ void IdentifyVersion(void)
 
     if (!stricmp(doomuwad,gameid))
     {
-        gamemode = retail;
+        gamemode = ultimate;
         current_mode = commercial;
         D_AddFile(doomuwad);
         return;
@@ -758,7 +758,7 @@ void D_DoomMain(void)
     {
         switch (gamemode)
         {
-            case retail:
+            case ultimate:
                 printf("Ultimate DOOM v%i.%i\n", VERSION / 100, VERSION % 100);
                 break;
             case shareware:
@@ -798,7 +798,7 @@ void D_DoomMain(void)
             printf("%s", shareware_banner);
             break;
         case registered:
-        case retail:
+        case ultimate:
         case commercial:
             printf("%s", commercial_banner);
             break;
@@ -814,8 +814,8 @@ void D_DoomMain(void)
         case registered:
             printf("Game mode: registered\n");
             break;
-        case retail:
-            printf("Game mode: retail\n");
+        case ultimate:
+            printf("Game mode: ultimate\n");
             break;
         case commercial:
             printf("Game mode: commercial\n");

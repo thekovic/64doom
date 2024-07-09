@@ -51,7 +51,7 @@ typedef enum
   registered,	// DOOM 1 registered, E3, M27
   commercial,	// DOOM 2 retail, E1 M34
   // DOOM 2 german edition not handled
-  retail,	// DOOM 1 retail, E4, M36
+  ultimate,	// DOOM 1 retail, E4, M36
   pack_plut,
   pack_tnt,
   indetermined	// Well, no IWAD found.

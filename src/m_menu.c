@@ -810,7 +810,7 @@ void M_DrawReadThis1(void)
 	break;
       case shareware:
       case registered:
-      case retail:
+      case ultimate:
 	V_DrawPatch (0,0,W_CacheLumpName("HELP1",PU_CACHE));
 	break;
       default:
@@ -829,7 +829,7 @@ void M_DrawReadThis2(void)
     inhelpscreens = true;
     switch ( gamemode )
     {
-      case retail:
+      case ultimate:
       case commercial:
 	// This hack keeps us from having to change menus.
 	V_DrawPatch (0,0,W_CacheLumpName("CREDIT",PU_CACHE));
@@ -1643,7 +1643,7 @@ boolean M_Responder (event_t* ev)
 	  case KEY_F1:            // Help key
 	    M_StartControlPanel ();
 
-	    if ( gamemode == retail )
+	    if ( gamemode == ultimate )
 	      currentMenu = &ReadDef2;
 	    else
 	      currentMenu = &ReadDef1;
@@ -1990,7 +1990,7 @@ void M_Init (void)
 	// We need to remove the fourth episode.
 	EpiDef.numitems--;
 	break;
-      case retail:
+      case ultimate:
 	// We are fine.
       default:
 	break;

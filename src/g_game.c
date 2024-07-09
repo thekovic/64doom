@@ -1197,6 +1197,11 @@ char msg[256];
 
 void G_DoLoadGame (void)
 {
+    if (joypad_get_accessory_type(JOYPAD_PORT_1) != JOYPAD_ACCESSORY_TYPE_CONTROLLER_PAK)
+    {
+        return;
+    }
+
     char *gameid = get_GAMEID();
     entry_structure_t entry;
     int i;
@@ -1214,9 +1219,6 @@ void G_DoLoadGame (void)
 
     memset(&savebuffer[0],  0, SAVEGAMESIZE);
     memset(&mempak_data[0], 0, 256*123);
-
-    struct controller_data output;
-    get_accessories_present(&output);
 
     any_entries = 0;
     err = 0;
@@ -1397,6 +1399,11 @@ void G_SaveGame ( int slot, char* description )
 
 void G_DoSaveGame (void)
 {
+    if (joypad_get_accessory_type(JOYPAD_PORT_1) != JOYPAD_ACCESSORY_TYPE_CONTROLLER_PAK)
+    {
+        return;
+    }
+
     char     name[100];
     char     name2[VERSIONSIZE];
     char*    description;
@@ -1448,8 +1455,6 @@ void G_DoSaveGame (void)
     }
 
     int available_free_blocks = 0;
-    struct controller_data output;
-    get_accessories_present(&output);
     available_free_blocks = get_mempak_free_space(0);
     if (0 == available_free_blocks)
     {
@@ -1672,7 +1677,7 @@ void G_InitNew ( skill_t skill, int episode, int map )
     if (episode < 1)
         episode = 1; 
 
-    if ( gamemode == retail )
+    if ( gamemode == ultimate )
     {
         if (episode > 4)
             episode = 4;

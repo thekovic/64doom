@@ -60,7 +60,7 @@
 
 //
 // Different vetween registered DOOM (1994) and
-//  Ultimate DOOM - Final edition (retail, 1995?).
+//  Ultimate DOOM - Final edition (ultimate, 1995?).
 // This is supposedly ignored for commercial
 //  release (aka DOOM II), which had 34 maps
 //  in one episode. So there.
@@ -1529,7 +1529,7 @@ void WI_loadData(void)
     else 
 	sprintf(name, "WIMAP%d", wbs->epsd);
     
-    if ( gamemode == retail )
+    if ( gamemode == ultimate )
     {
       if (wbs->epsd == 3)
 	strcpy(name,"INTERPIC");
@@ -1795,7 +1795,7 @@ void WI_initVariables(wbstartstruct_t* wbstartstruct)
     if (!wbs->maxsecret)
 	wbs->maxsecret = 1;
 
-    if ( gamemode != retail )
+    if ( gamemode != ultimate )
       if (wbs->epsd > 2)
 	wbs->epsd -= 3;
 }

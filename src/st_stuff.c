@@ -682,7 +682,7 @@ ST_Responder (event_t* ev)
     map = buf[1] - '0';
       }
 
-   //   if (((gamemode == shareware) || (gamemode == retail) || (gamemode == registered))
+   //   if (((gamemode == shareware) || (gamemode == ultimate) || (gamemode == registered))
      //     && (epsd == 0))
      // {
        //   epsd = 1;
@@ -696,7 +696,7 @@ ST_Responder (event_t* ev)
     return false;
 
       // Ohmygod - this is not going to work.
-      if ((gamemode == retail)
+      if ((gamemode == ultimate)
       && ((epsd > 4) || (map > 9)))
     return false;
 
@@ -743,7 +743,7 @@ ST_Responder (event_t* ev)
     return false;
       
       // Ohmygod - this is not going to work.
-      if ((gamemode == retail)
+      if ((gamemode == ultimate)
       && ((epsd > 4) || (map > 9)))
     return false;
 
