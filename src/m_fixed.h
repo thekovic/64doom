@@ -25,7 +25,6 @@
 #define __M_FIXED__
 
 #include <inttypes.h>
-#include <limits.h>
 
 //
 // Fixed point, 32bit as 16.16.
@@ -41,25 +40,8 @@ static inline int D_abs(fixed_t x)
     return (x ^ _s) - _s;
 }
 
-static inline fixed_t __attribute__((always_inline)) FixedMul(fixed_t a, fixed_t b)
-{
-    return (fixed_t) (((int64_t) a * (int64_t) b) >> FRACBITS);
-}
+fixed_t FixedMul(fixed_t a, fixed_t b);
 
-static inline fixed_t __attribute__((always_inline)) FixedDiv(fixed_t a, fixed_t b)
-{
-    if ((D_abs(a) >> 14) >= D_abs(b))
-    {
-	    return (a^b) < 0 ? INT_MIN : INT_MAX;
-    }
-    else
-    {
-        int64_t result;
-
-        result = ((int64_t) a << FRACBITS) / b;
-
-        return (fixed_t) result;
-    }
-}
+fixed_t FixedDiv(fixed_t a, fixed_t b);
 
 #endif
