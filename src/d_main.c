@@ -426,6 +426,12 @@ void D_DoomLoop(void)
         S_UpdateSounds(players[consoleplayer].mo);// move positional sounds
 
         D_Display();
+
+#ifndef NO_FPS_COUNTER
+        char readout_buf[16];
+        sprintf(readout_buf, "FPS: %f", display_get_fps());
+        graphics_draw_text(_dc, 16, 12, readout_buf);
+#endif
     }
 }
 

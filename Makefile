@@ -13,6 +13,9 @@ N64_ROM_TITLE = $(IWAD_PREFIX)
 # Uncomment to compile with various safety checks throughout the code
 # CFLAGS += -DRANGECHECK
 
+# Uncomment to compile without visible FPS counter
+# CFLAGS += -DNO_FPS_COUNTER
+
 all: $(IWAD_PREFIX).z64
 
 ASSETS_MENULUMPS = $(wildcard assets/menulumps/*.bin)
