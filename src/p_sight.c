@@ -111,24 +111,16 @@ P_DivlineSide
 // along the first divline.
 // This is only called by the addthings and addlines traversers.
 //
-fixed_t
-P_InterceptVector2
-( divline_t*	v2,
-  divline_t*	v1 )
+fixed_t P_InterceptVector2 (divline_t* v2, divline_t* v1)
 {
-    fixed_t	frac;
-    fixed_t	num;
-    fixed_t	den;
-	
-    den = FixedMul (v1->dy>>8,v2->dx) - FixedMul(v1->dx>>8,v2->dy);
+    fixed_t den = FixedMul(v1->dy >> 8, v2->dx) - FixedMul(v1->dx >> 8, v2->dy);
 
     if (den == 0)
-	return 0;
-    //	I_Error ("P_InterceptVector: parallel");
+        return 0;
+    // I_Error ("P_InterceptVector: parallel");
     
-    num = FixedMul ( (v1->x - v2->x)>>8 ,v1->dy) + 
-	FixedMul ( (v2->y - v1->y)>>8 , v1->dx);
-    frac = FixedDiv (num , den);
+    fixed_t num = FixedMul((v1->x - v2->x) >> 8, v1->dy) + FixedMul((v2->y - v1->y) >> 8, v1->dx);
+    fixed_t frac = FixedDiv(num, den);
 
     return frac;
 }
