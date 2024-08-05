@@ -317,8 +317,8 @@ void GetPackets (void)
 // Builds ticcmds for console player,
 // sends out a packet
 //
-int      gametime;
-//extern volatile uint64_t timekeeping;
+int gametime;
+
 void NetUpdate (void)
 {
     int    nowtime;
@@ -688,7 +688,6 @@ void D_QuitNetGame (void)
 	for (j=1 ; j<doomcom->numnodes ; j++)
 	    if (nodeingame[j])
 		HSendPacket (j, NCMD_EXIT);
-	I_WaitVBL (1);
     }
 }
 
@@ -716,7 +715,7 @@ void TryRunTics (void)
     int		numplaying;
     
     // get real tics		
-    entertic = I_GetTime ();//(timekeeping >> 2);// /ticdup;
+    entertic = I_GetTime();
     realtics = entertic - oldentertics;
     oldentertics = entertic;
     
@@ -802,7 +801,7 @@ void TryRunTics (void)
 	    I_Error ("TryRunTics: lowtic < gametic");
 				
 	// don't stay in here forever -- give the menu a chance to work
-	if (I_GetTime ()/*/ticdup*//*(timekeeping >> 2)*/ - entertic >= 20)
+	if (I_GetTime() - entertic >= 20)
 	{
 	    M_Ticker ();
 	    return;

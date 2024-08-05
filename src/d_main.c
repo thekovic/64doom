@@ -79,10 +79,6 @@ char commercial_banner[] =
 
 extern int return_from_D_DoomMain;
 
-unsigned long I_GetTime(void);    
-
-extern volatile uint64_t timekeeping;
-
 extern surface_t *_dc;
 
 volatile int should_sound = 0;
@@ -879,7 +875,10 @@ void D_DoomMain(void)
         .width = SCREENWIDTH,
         .height = SCREENHEIGHT,
         .interlaced = false,
-    }, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE);
+    }, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_RESAMPLE);
+
+    // engage libdragon's fps limiter
+    display_set_fps_limit(TICRATE);
 
     D_DoomLoop();  // never returns
 }

@@ -37,16 +37,13 @@
 #include "d_net.h"
 #include "g_game.h"
 
-#ifdef __GNUG__
-#pragma implementation "i_system.h"
-#endif
 #include "i_system.h"
+
+#define TICKS_TO_DOOM_TICKS(val) (((val) / (TICKS_PER_SECOND / TICRATE)))
 
 extern surface_t* _dc;
 
 void DebugOutput_String_For_IError(const char *str, int lineNumber, int good);
-
-volatile uint32_t timekeeping;
 
 // freed up enough space through gc-sections to give 5.5 MB to zone
 // this also allowed me to get screen wipe working again
@@ -57,8 +54,6 @@ int based_zone = 0;
 
 void I_Tactile(int on, int off, int total)
 {
-    // UNUSED.
-    on = off = total = 0;
 }
 
 
@@ -94,18 +89,12 @@ byte* I_ZoneBase(int* size)
 
 //
 // I_GetTime
-// returns time in 1/70th second tics
+// returns time in increments of 1/35th of a second
 //
 unsigned long I_GetTime(void)
 {
-    return timekeeping;
+    return TICKS_TO_DOOM_TICKS(get_ticks());
 }
-
-
-void tickercb(int ovfl) {
-    timekeeping++;
-}
-
 
 //
 // I_Init
@@ -114,13 +103,6 @@ void I_Init(void)
 {
     I_InitSound();
     I_InitMusic();
-
-    timer_init();
-    timekeeping = 0;
-
-    // 70 times per second
-    // 93750000 / 70
-    new_timer(1339286, TF_CONTINUOUS, tickercb);
 
     I_InitGraphics();
 }
@@ -143,20 +125,15 @@ void I_Quit(void)
 
 void I_WaitVBL(int count)
 {
-    volatile uint32_t start = I_GetTime();
-    while(((volatile uint32_t)I_GetTime() - start) < ((uint32_t)count)) {}
 }
-
 
 void I_BeginRead(void)
 {
 }
 
-
 void I_EndRead(void)
 {
 }
-
 
 byte* I_AllocLow(int length)
 {
