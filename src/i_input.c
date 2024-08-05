@@ -343,12 +343,12 @@ void I_StartTic(void)
 static char __attribute__((aligned(8))) clevstr[9];
 
 extern    char*    get_GAMEID();
-extern    char*    doom1wad;
-extern    char*    doomwad;
-extern    char*    doomuwad;
-extern    char*    doom2wad;
-extern    char*    plutoniawad;
-extern    char*    tntwad;
+extern    char*    doom_shareware_wad;
+extern    char*    doom_registered_wad;
+extern    char*    doom_ultimate_wad;
+extern    char*    doom2_wad;
+extern    char*    plutonia_wad;
+extern    char*    tnt_wad;
 
 #define stricmp strcasecmp
 
@@ -424,9 +424,9 @@ void n64_do_cheat(int cheat)
         {
             const char *gameid = get_GAMEID();
 
-            if (!stricmp(doom2wad,gameid) || !stricmp(tntwad,gameid) || !stricmp(plutoniawad,gameid))
+            if (!stricmp(doom2_wad,gameid) || !stricmp(tnt_wad,gameid) || !stricmp(plutonia_wad,gameid))
             {
-                if (!stricmp(doom2wad,gameid))
+                if (!stricmp(doom2_wad,gameid))
                 {
                     if (current_map < 32)
                     {

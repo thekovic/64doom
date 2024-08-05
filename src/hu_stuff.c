@@ -414,12 +414,12 @@ void HU_Stop(void)
 extern GameMode_t current_mode;
 
 extern char *get_GAMEID();
-extern    char*	doom1wad;
-extern    char*	doomwad;
-extern    char*	doomuwad;
-extern    char*	doom2wad;
-extern    char*	plutoniawad;
-extern    char*	tntwad;
+extern    char*	doom_shareware_wad;
+extern    char*	doom_registered_wad;
+extern    char*	doom_ultimate_wad;
+extern    char*	doom2_wad;
+extern    char*	plutonia_wad;
+extern    char*	tnt_wad;
 #define stricmp strcasecmp
 
 void HU_Start(void)
@@ -450,15 +450,15 @@ void HU_Start(void)
 		       hu_font,
 		       HU_FONTSTART);
 	
-	if (!stricmp(doom2wad,gameid))
+	if (!stricmp(doom2_wad,gameid))
 	{
 		s = HU_TITLE2;
 	}
-	else if (!stricmp(plutoniawad,gameid))
+	else if (!stricmp(plutonia_wad,gameid))
 	{
 		s = HU_TITLEP;
 	}
-	else if (!stricmp(tntwad,gameid))
+	else if (!stricmp(tnt_wad,gameid))
 	{
 		s = HU_TITLET;
 	}

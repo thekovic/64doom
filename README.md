@@ -28,7 +28,7 @@ Set two variables in the Makefile:
 
 - `IWAD_DIRECTORY` -- the path to the directory that contains your IWAD file
 
-- `IWAD_PREFIX` -- the actual IWAD filename prefix (one of `DOOM1` (Shareware version), `DOOMR` (Registered version), `DOOM` (Ultimate DOOM), `DOOM2`, `PLUTONIA`, `TNT` - these are case sensitive. Must be uppercase and your wad filename must be uppercase i.e. `DOOM2.WAD`)
+- `IWAD_PREFIX` -- the actual IWAD filename prefix (one of `doom1` (Shareware version), `doomr` (Registered version), `doom` (Ultimate DOOM), `doom2`, `plutonia`, `tnt` - these are case sensitive. Must be lowercase and your WAD filename must be lowercase i.e. `doom2.wad`)
 
 And run `make`.
 

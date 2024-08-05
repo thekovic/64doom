@@ -644,14 +644,13 @@ extern GameMode_t current_mode;
 // to determine whether registered/commercial features
 // should be executed (notably loading PWAD's).
 //
-char*    doom1wad = "DOOM1.WAD";
-char*    doomwad = "DOOMR.WAD";
-char*    doomuwad = "DOOM.WAD";
-char*    doom2wad = "DOOM2.WAD";
-
-char*    doom2fwad = "DOOM2F.WAD";
-char*    plutoniawad = "PLUTONIA.WAD";
-char*    tntwad = "TNT.WAD";
+char*    doom_shareware_wad = "doom1.wad";
+char*    doom_registered_wad = "doomr.wad";
+char*    doom_ultimate_wad = "doom.wad";
+char*    doom2_wad = "doom2.wad";
+char*    doom2_french_wad = "doom2f.wad";
+char*    plutonia_wad = "plutonia.wad";
+char*    tnt_wad = "tnt.wad";
 
 void IdentifyVersion(void)
 {
@@ -659,61 +658,61 @@ void IdentifyVersion(void)
 
     printf("IdentifyVersion: %s\n", gameid);
 
-    if (!stricmp(doom2fwad,gameid))
+    if (!stricmp(doom2_french_wad,gameid))
     {
         gamemode = commercial;
         // C'est ridicule!
         // Let's handle languages in config files, okay?
         language = french;
-        D_AddFile(doom2fwad);
+        D_AddFile(doom2_french_wad);
         return;
     }
 
-    if (!stricmp(doom2wad,gameid))
+    if (!stricmp(doom2_wad,gameid))
     {
         gamemode = commercial;
         current_mode = commercial;
-        D_AddFile(doom2wad);
+        D_AddFile(doom2_wad);
         return;
     }
 
-    if (!stricmp(plutoniawad,gameid))
+    if (!stricmp(plutonia_wad,gameid))
     {
         gamemode = commercial;
         current_mode = pack_plut;
-        D_AddFile(plutoniawad);
+        D_AddFile(plutonia_wad);
         return;
     }
 
-    if (!stricmp(tntwad,gameid))
+    if (!stricmp(tnt_wad,gameid))
     {
         gamemode = commercial;
         current_mode = pack_tnt;
-        D_AddFile(tntwad);
+        D_AddFile(tnt_wad);
         return;
     }
 
-    if (!stricmp(doomuwad,gameid))
+    if (!stricmp(doom_ultimate_wad,gameid))
     {
         gamemode = ultimate;
         current_mode = commercial;
-        D_AddFile(doomuwad);
+        D_AddFile(doom_ultimate_wad);
         return;
     }
 
-    if (!stricmp(doomwad,gameid))
+    if (!stricmp(doom_registered_wad,gameid))
     {
         gamemode = registered;
         current_mode = commercial;
-        D_AddFile(doomwad);
+        D_AddFile(doom_registered_wad);
         return;
     }
 
-    if (!stricmp(doom1wad,gameid))
+    if (!stricmp(doom_shareware_wad,gameid))
     {
         gamemode = shareware;
         current_mode = commercial;
-        D_AddFile(doom1wad);
+        D_AddFile(doom_shareware_wad);
         return;
     }
 
@@ -789,7 +788,7 @@ void D_DoomMain(void)
     printf("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init();
 
-    printf("W_Init: Init WADfiles.\n");
+    printf("W_Init: Init WAD files.\n");
     W_InitMultipleFiles(wadfiles);
 
     // Check and print which version is executed.

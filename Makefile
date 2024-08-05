@@ -1,7 +1,7 @@
 # Copy your IWAD to the IWAD_DIRECTORY folder and select corresponding prefix here
 IWAD_DIRECTORY = iwads
-# Options: DOOM1 DOOMR DOOM DOOM2 PLUTONIA TNT
-IWAD_PREFIX = DOOM
+# Options: doom1 doomr doom doom2 plutonia tnt
+IWAD_PREFIX = doom2
 
 SOURCE_DIR = src
 BUILD_DIR = build
@@ -20,7 +20,7 @@ all: $(IWAD_PREFIX).z64
 
 ASSETS_MENULUMPS = $(wildcard assets/menulumps/*.bin)
 ASSETS_MIDI_INSTRUMENTS = assets/MIDI_Instruments.bin
-ASSETS_IWAD = $(IWAD_DIRECTORY)/$(IWAD_PREFIX).WAD
+ASSETS_IWAD = $(IWAD_DIRECTORY)/$(IWAD_PREFIX).wad
 
 FS_MENULUMPS = $(addprefix filesystem/menulumps/, $(notdir $(ASSETS_MENULUMPS:%.bin=%.bin)))
 FS_MIDI_INSTRUMENTS = $(subst assets/, filesystem/, $(ASSETS_MIDI_INSTRUMENTS))
