@@ -44,18 +44,20 @@ void I_FinishUpdate(void);
 
 // main display
 surface_t* _dc;
+// frame buffer that accumulates everything drawn by CPU before we blit to screen with RDP
+// TODO: Get rid of this when we draw the entire frame using RDP
+surface_t frame_buffer;
 
 // use this to hold _dc->buffer pointer whenever we get a surface in D_DoomLoop
 // now each R_DrawColumn/R_DrawSpan call only needs one "lw" instruction to get screen
 // instead of two
 // saves (num cols + num spans) "lw" instructions per rendered frame
 // that is 1000+ loads per frame
-void *bufptr;
+void* bufptr;
 
 void I_StartFrame(void)
 {
-    _dc = display_get();
-    bufptr = _dc->buffer;
+    rdpq_attach(display_get(), NULL);
 }
 
 void I_ShutdownGraphics(void)
@@ -69,7 +71,14 @@ void I_UpdateNoBlit(void)
 
 void I_FinishUpdate(void)
 {
-    display_show(_dc);
+    rdpq_set_mode_standard();
+    rdpq_tex_blit(_dc, 0, 0, NULL);
+
+#ifndef NO_FPS_COUNTER
+    rdpq_text_printf(NULL, FONT_BUILTIN_DEBUG_MONO, 16, 20, "FPS: %f", display_get_fps());
+#endif
+
+    rdpq_detach_show();
 }
 
 //
@@ -150,4 +159,11 @@ void I_InitGraphics(void)
     I_SetDefaultPalette();
 
     palarray = current_palarray;
+
+    frame_buffer = surface_alloc(FMT_RGBA16, SCREENWIDTH, SCREENHEIGHT);
+    _dc = &frame_buffer;
+    bufptr = _dc->buffer;
+
+    // activate built-in font for RDPQ
+    rdpq_text_register_font(FONT_BUILTIN_DEBUG_MONO, rdpq_font_load_builtin(FONT_BUILTIN_DEBUG_MONO));
 }
