@@ -126,6 +126,7 @@ int main()
     }
 
     joypad_init();
+    rdpq_init();
 
     printf("ClassicDoomN64 by the_kovic\n");
     printf("https://github.com/thekovic/ClassicDoomN64");
