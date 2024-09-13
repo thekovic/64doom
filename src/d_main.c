@@ -591,26 +591,16 @@ void D_AddFile(char *file)
 }
 
 static char __attribute__((aligned(8))) gameid[16];
-char *get_GAMEID()
+char* get_GAMEID()
 {
     int fd = dfs_open("iwad_identifier.txt");
-    if (fd < 0)
-    {
-        I_Error("get_GAMEID: DFS could not open iwad_identifier file.\n");
-    }
-    size_t len = dfs_size(fd);
-    if (len < 0 || 16 < len)
-    {
-        I_Error("get_GAMEID: DFS returned invalid size for identifiler file after opening.\n");
-    }
+    assertf(fd >= 0, "get_GAMEID: DFS could not open iwad_identifier.txt");
+    int len = dfs_size(fd);
+    assertf(len >= 0 && len <= 16, "get_GAMEID: DFS returned invalid size for identifiler file after opening.");
     memset(gameid,0,16);
-
-    if (len != dfs_read(gameid, sizeof(char), len, fd))
-    {
-        I_Error("get_GAMEID: DFS could not read iwad_identifier file after opening.\n");
-    }
+    int bytes_read = dfs_read(gameid, sizeof(char), len, fd);
+    assertf(len == bytes_read, "get_GAMEID: DFS could not read iwad_identifier file after opening.");
     dfs_close(fd);
-
 
     // deal with newlines or other stray characters after the end of the filename
     for (size_t i=0;i<len;i++)
@@ -713,10 +703,6 @@ void IdentifyVersion(void)
     printf("Game mode indeterminate.\n");
     gamemode = indetermined;
     current_mode = commercial;
-
-    // We don't abort. Let's see what the PWAD contains.
-    //exit(1);
-    //I_Error ("Game mode indeterminate\n");*/
 }
 
 //

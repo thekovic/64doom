@@ -697,10 +697,8 @@ void G_Ticker (void)
 
             if (netgame && !netdemo && !(gametic%ticdup))
             {
-                if ((gametic > BACKUPTICS) && (consistancy[i][buf] != cmd->consistancy))
-                {
-                    I_Error("G_Ticker: consistency failure (%i should be %i)", cmd->consistancy, consistancy[i][buf]);
-                }
+                assertf(!((gametic > BACKUPTICS) && (consistancy[i][buf] != cmd->consistancy)),
+                    "G_Ticker: consistency failure (%i should be %i)", cmd->consistancy, consistancy[i][buf]);
 
                 if (players[i].mo)
                 {
@@ -913,12 +911,9 @@ void G_DeathMatchSpawnPlayer(int playernum)
     int selections;
 
     selections = deathmatch_p - deathmatchstarts;
-#ifdef RANGECHECK
-    if (selections < 4)
-    {
-        I_Error("G_DeathMatchSpawnPlayer: Only %i deathmatch spots, 4 required", selections);
-    }
-#endif
+    
+    assertf(selections >= 4, "G_DeathMatchSpawnPlayer: Only %i deathmatch spots, 4 required", selections);
+    
     for (j=0 ; j<20 ; j++) 
     { 
     i = P_Random() % selections; 
@@ -1208,7 +1203,6 @@ void G_DoLoadGame (void)
     int j;
     int a,b,c;
     char vcheck[VERSIONSIZE];
-    int err;
     // flag set when mempak entry name matches the current game identifier
     int entry_found;
     int any_entries;
@@ -1221,7 +1215,6 @@ void G_DoLoadGame (void)
     memset(&mempak_data[0], 0, 256*123);
 
     any_entries = 0;
-    err = 0;
     entry_found = 0;
     // maximum 16 mempak entries
     for (j=0;j<16;j++)
@@ -1278,60 +1271,30 @@ void G_DoLoadGame (void)
     }
 
     // read the mempak blocks referenced by the entry into readbuf for later processing
-    err = 0;
-    err |= read_mempak_entry_data(0, &entry, mempak_data);
-    if (0 != err)
-    {
-        I_Error("G_DoLoadGame: Error loading data!\nread_mempak_entry_data failed.");
-    }
+    int err = read_mempak_entry_data(0, &entry, mempak_data);
+    assertf(!err, "G_DoLoadGame: Error loading data!\nread_mempak_entry_data failed.");
+    
     if (!entry.valid)
     {
         sprintf(msg,"Save game invalid after mempak read. Not loading.");
         goto the_end_of_loading;
     }
 
-    if (entry.blocks < 2)
-    {
-        I_Error("less than 2 blocks");
-    }
-    // I don't remember why this isn't redundant with the above, maybe it is
-    if (entry.blocks < 3)
-    {
-        I_Error("less than 3 blocks");
-    }
+    assertf(entry.blocks >= 3, "G_DoLoadGame: less than 3 blocks");
 
     unsigned int uncompressed_save_size = 0;
     unsigned int compressed_save_size = *(uint32_t *)(&mempak_data[0]);
 
-    if(compressed_save_size < 1)
-    {
-        I_Error("compressed save size too small");
-    }
-
-    if(compressed_save_size > 256*122)
-    {
-        I_Error("compressed save too large");
-    }
+    assertf(compressed_save_size >= 1, "G_DoLoadGame: compressed save size too small");
+    assertf(compressed_save_size <= 256*122, "G_DoLoadGame: compressed save too large");
 
     uint8_t *compressed_data = &mempak_data[256];
     int rv = lzfx_decompress(compressed_data, compressed_save_size, savebuffer, &uncompressed_save_size);
-    if (rv < 0 && rv != LZFX_ESIZE3)
-    {
-        I_Error("decompress get size failure");
-    }
+    assertf(!(rv < 0 && rv != LZFX_ESIZE3), "G_DoLoadGame: decompress get size failure");
     rv = lzfx_decompress(compressed_data, compressed_save_size, savebuffer, &uncompressed_save_size);
-    if (rv < 0)
-    {
-        I_Error("decompress failure");
-    }
-    if (0 == uncompressed_save_size)
-    {
-        I_Error("failed to decompress save data");
-    }
-    if (SAVEGAMESIZE < uncompressed_save_size)
-    {
-        I_Error("uncompressed save too large");
-    }
+    assertf(!rv, "G_DoLoadGame: decompress failure");
+    assertf(!uncompressed_save_size, "G_DoLoadGame: failed to decompress save data");
+    assertf(uncompressed_save_size <= SAVEGAMESIZE, "G_DoLoadGame: uncompressed save too large");
 
     save_p = savebuffer + SAVESTRINGSIZE;
 
@@ -1368,10 +1331,7 @@ void G_DoLoadGame (void)
     P_UnArchiveSpecials ();
 
     // consistency marker
-    if (*save_p != 0x1d)
-    {
-        I_Error ("G_DoLoadGame: Bad savegame");
-    }
+    assertf(*save_p == 0x1d, "G_DoLoadGame: Bad savegame");
 
     // done
 the_end_of_loading:
@@ -1449,14 +1409,11 @@ void G_DoSaveGame (void)
     *save_p++ = 0x1d;    // consistancy marker
 
     length = save_p - savebuffer;
-    if (length > SAVEGAMESIZE)
-    {
-        I_Error("G_DoSaveGame: Savegame buffer overrun");
-    }
+    assertf(length <= SAVEGAMESIZE, "G_DoSaveGame: Savegame buffer overrun");
 
     int available_free_blocks = 0;
     available_free_blocks = get_mempak_free_space(0);
-    if (0 == available_free_blocks)
+    if (!available_free_blocks)
     {
         sprintf(msg, "Mempak is full. Not saving.");
         goto the_end_of_saving;
@@ -1468,23 +1425,12 @@ void G_DoSaveGame (void)
     uint8_t *compressed_data = &mempak_data[256];
 
     int rv = lzfx_compress(savebuffer, uncompressed_save_size, compressed_data, &compressed_save_size);
-    if (0 > rv)
-    {
-        I_Error("lzfx_compress failed");
-    }
-    if (LZFX_EARGS == rv)
-    {
-        I_Error("lzfx_compress EARGS");
-    }
-    else if (LZFX_ESIZE3 == rv)
-    {
-        I_Error("lzfx_compress ESIZE3");
-    }
+    
+    assertf(rv != LZFX_EARGS, "G_DoSaveGame: lzfx_compress EARGS");
+    assertf(rv != LZFX_ESIZE3, "G_DoSaveGame: lzfx_compress ESIZE3");
+    assertf(!rv, "G_DoSaveGame: lzfx_compress failed");
 
-    if (compressed_save_size > 256*122)
-    {
-        I_Error("compressed save too large");
-    }
+    assertf(compressed_save_size <= 256*122, "G_DoSaveGame: compressed save too large");
 
     *(uint32_t *)(&mempak_data[0]) = compressed_save_size;
 
@@ -1946,8 +1892,8 @@ boolean G_CheckDemoStatus(void)
 
     if (timingdemo)
     {
-    endtime = I_GetTime ();
-    I_Error("G_CheckDemoStatus: timed %i gametics in %i realtics", gametic, endtime-starttime);
+        endtime = I_GetTime ();
+        debugf("G_CheckDemoStatus: timed %i gametics in %i realtics", gametic, endtime-starttime);
     } 
 
     if (demoplayback) 
@@ -1971,11 +1917,11 @@ boolean G_CheckDemoStatus(void)
  
     if (demorecording) 
     { 
-    *demo_p++ = DEMOMARKER; 
-    M_WriteFile (demoname, demobuffer, demo_p - demobuffer); 
-    Z_Free (demobuffer); 
-    demorecording = false;
-    I_Error("G_CheckDemoStatus: Demo %s recorded",demoname);
+        *demo_p++ = DEMOMARKER; 
+        M_WriteFile (demoname, demobuffer, demo_p - demobuffer); 
+        Z_Free (demobuffer); 
+        demorecording = false;
+        debugf("G_CheckDemoStatus: Demo %s recorded",demoname);
     } 
 
     return false; 

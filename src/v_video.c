@@ -160,20 +160,18 @@ void V_DrawPatch ( int x, int y, patch_t* patch )
     byte*        source; 
     int          w; 
 
-    y -= SHORT(patch->topoffset); 
-    x -= SHORT(patch->leftoffset); 
-#ifdef RANGECHECK 
-    if (x<0
-        ||x+SHORT(patch->width) >SCREENWIDTH
-        || y<0
-        || y+SHORT(patch->height)>SCREENHEIGHT)
+    y -= SHORT(patch->topoffset);
+    x -= SHORT(patch->leftoffset);
+ #ifdef RANGECHECK   
+    if (x < 0
+        || x + SHORT(patch->width) > SCREENWIDTH
+        || y < 0
+        || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        fprintf( stderr, "Patch at %d,%d exceeds LFB\n", x,y );
-        // No I_Error abort - what is up with TNT.WAD?
-        fprintf( stderr, "V_DrawPatch: bad patch (ignored)\n");
+        debugf("Patch at %d,%d exceeds LFB\n", x, y);
+        debugf("V_DrawPatch: bad patch (ignored)\n");
     }
 #endif
-
     col = 0; 
     desttop = (uint16_t*)((uintptr_t)bufptr + (uintptr_t)((((y)*SCREENWIDTH)+x)*2));
 
@@ -219,9 +217,9 @@ void V_DrawPatchBuf ( int x, int y, patch_t* patch, uint16_t *buf)
         || y<0
         || y+SHORT(patch->height)>SCREENHEIGHT)
     {
-        fprintf( stderr, "Patch at %d,%d exceeds LFB\n", x,y );
+        debugf("Patch at %d,%d exceeds LFB\n", x,y);
         // No I_Error abort - what is up with TNT.WAD?
-        fprintf( stderr, "V_DrawPatch: bad patch (ignored)\n");
+        debugf("V_DrawPatch: bad patch (ignored)\n");
     }
 #endif 
 
@@ -275,8 +273,8 @@ void V_DrawPatchFlipped ( int x, int y, patch_t* patch )
         || y<0
         || y+SHORT(patch->height)>SCREENHEIGHT)
     {
-        fprintf( stderr, "Patch origin %d,%d exceeds LFB\n", x,y );
-        I_Error ("Bad V_DrawPatch in V_DrawPatchFlipped");
+        debugf("Patch origin %d,%d exceeds LFB\n", x,y );
+        debugf("Bad V_DrawPatch in V_DrawPatchFlipped");
     }
 #endif
 

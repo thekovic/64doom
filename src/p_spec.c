@@ -146,47 +146,37 @@ extern  line_t*	linespeciallist[MAXLINEANIMS];
 
 void P_InitPicAnims (void)
 {
-    int		i;
-
-    
     //	Init animation
     lastanim = anims;
-//for(i=0;i<22;i++)
-	    for (i=0 ; animdefs[i].istexture != -1 ; i++)
-    {
-	if (animdefs[i].istexture)
-	{
-		/////printf("%s\n", animdefs[i].startname);
-    // different episode ?
-	    if (R_CheckTextureNumForName(animdefs[i].startname) == -1)
-		continue;	
-////printf("%s\n", animdefs[i].endname);
-	    lastanim->picnum = R_TextureNumForName (animdefs[i].endname);
-	    lastanim->basepic = R_TextureNumForName (animdefs[i].startname);
-	}
-	else
-	{
-	    if (W_CheckNumForName(animdefs[i].startname) == -1)
-		continue;
-
-	    lastanim->picnum = R_FlatNumForName (animdefs[i].endname);
-	    lastanim->basepic = R_FlatNumForName (animdefs[i].startname);
-	}
-
-	lastanim->istexture = animdefs[i].istexture;
-	lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
-#ifdef RANGECHECK
-	if (lastanim->numpics < 2)
-	{
-	    I_Error("P_InitPicAnims: bad cycle from %s to %s",
-		     animdefs[i].startname,
-		     animdefs[i].endname);
-	}
-#endif	
-	lastanim->speed = animdefs[i].speed;
-	lastanim++;
-    }
 	
+	for (int i = 0; animdefs[i].istexture != -1; i++)
+    {
+		if (animdefs[i].istexture)
+		{
+			// different episode ?
+			if (R_CheckTextureNumForName(animdefs[i].startname) == -1)
+			continue;	
+			
+			lastanim->picnum = R_TextureNumForName (animdefs[i].endname);
+			lastanim->basepic = R_TextureNumForName (animdefs[i].startname);
+		}
+		else
+		{
+			if (W_CheckNumForName(animdefs[i].startname) == -1)
+			continue;
+
+			lastanim->picnum = R_FlatNumForName (animdefs[i].endname);
+			lastanim->basepic = R_FlatNumForName (animdefs[i].startname);
+		}
+
+		lastanim->istexture = animdefs[i].istexture;
+		lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
+		
+		assertf(lastanim->numpics >= 2, "P_InitPicAnims: bad cycle from %s to %s", animdefs[i].startname, animdefs[i].endname);
+			
+		lastanim->speed = animdefs[i].speed;
+		lastanim++;
+    }
 }
 
 
@@ -1066,15 +1056,12 @@ void P_PlayerInSpecialSector (player_t* player)
 	if (player->health <= 10)
 	    G_ExitLevel();
 	break;
-#ifdef RANGECHECK			
+				
       default:
-	{
-	    I_Error("P_PlayerInSpecialSector: "
-		 "unknown special %i",
-		 sector->special);
-	    break;
-	}
-#endif	
+		{
+			assertf(true, "P_PlayerInSpecialSector: unknown special %i", sector->special);
+			break;
+		}
     };
 }
 

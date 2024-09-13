@@ -281,11 +281,10 @@ boolean P_Move (mobj_t*	actor)
     boolean	good;
 		
     if (actor->movedir == DI_NODIR)
-	return false;
-#ifdef RANGECHECK		
-    if ((unsigned)actor->movedir >= 8)
-	I_Error ("Weird actor->movedir!");
-#endif		
+	return false;	
+
+    assertf((unsigned)actor->movedir < 8, "Weird actor->movedir!");
+
     tryx = actor->x + actor->info->speed*xspeed[actor->movedir];
     tryy = actor->y + actor->info->speed*yspeed[actor->movedir];
 
@@ -370,10 +369,8 @@ void P_NewChaseDir (mobj_t*	actor)
     dirtype_t	olddir;
     
     dirtype_t	turnaround;
-#ifdef RANGECHECK
-    if (!actor->target)
-	I_Error ("P_NewChaseDir: called with no target");
-#endif		
+    
+    assertf(actor->target, "P_NewChaseDir: called with no target");
     olddir = actor->movedir;
     turnaround=opposite[olddir];
 

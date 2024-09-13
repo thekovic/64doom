@@ -656,89 +656,48 @@ int Mus_Register(void *musdata)
         {
             // get the pointer into the instrument data struct
             uintptr_t instrdata_ptr = midi_pointers[i];
+            assertf(instrdata_ptr, "Mus_Register: instrument %d used but MUS instrument pointer is NULL.\n", i);
 
+            // allocate some space for the header
+            mhdr = (struct midiHdr*)malloc(sizeof(struct midiHdr));
 #ifdef RANGECHECK
-            if (!instrdata_ptr)
+            assertf(mhdr, "Mus_Register: could not allocate memory for MIDI instrument header.\n");
+#else
+            if (!mhdr)
             {
-                I_Error("Mus_Register: instrument %d used but MUS instrument pointer is NULL.\n", i);
+                return 0;
             }
-
-            // make sure it doesn't point to NULL
-            if (instrdata_ptr)
 #endif
-            {
-                // allocate some space for the header
-                mhdr = (struct midiHdr*)malloc(sizeof(struct midiHdr));
+            // open MIDI Instrument Set file from ROM
+            hnd = dfs_open("MIDI_Instruments.bin");
+            assertf(hnd >= 0, "Mus_Register: Could not open MIDI_Instruments.bin (%i)", hnd);
 
-#ifdef RANGECHECK
-                if (!mhdr)
-                {
-                    I_Error("MUS_Register: could not allocate memory for MIDI instrument header.\n");
-                }
-#else
-                if (!mhdr)
-                {
-                    return 0;
-                }
-#endif
-                // open MIDI Instrument Set file from ROM
-                hnd = dfs_open("MIDI_Instruments.bin");
-                if (hnd < 0)
-                {
-#ifdef RANGECHECK
-                    I_Error("Mus_Register: Could not open MIDI_Instruments file (%s)\n", strerror(errno));
-#else
-                    // clean up malloc for header
-                    free(mhdr);
+            // handle already checked
+            dfs_seek(hnd, instrdata_ptr, SEEK_SET);
 
-                    //continue;
-                    return 0;
-#endif
-                }
+            int instrument_header_read = dfs_read(mhdr, sizeof(uint8_t), sizeof(struct midiHdr), hnd);
+            assertf(instrument_header_read == sizeof(struct midiHdr), "Mus_Register: Could not read instrument header %d from MIDI_Instruments.bin", i);
 
-                // handle already checked
-                dfs_seek(hnd, instrdata_ptr, SEEK_SET);
+            size_t length = mhdr->length >> 16;
+            int8_t* sample = (int8_t*)malloc(length);
+            assertf(sample, "Mus_Register: could not allocate memory for sample.\n");
 
-                if (sizeof(struct midiHdr) != dfs_read(mhdr, sizeof(uint8_t), sizeof(struct midiHdr), hnd))
-                {
-#ifdef RANGECHECK
-                    I_Error("Mus_Register: Could not read header for instrument %d from MIDI_Instruments file.\n", i);
-#else
-                    dfs_close(hnd);
-                    free(mhdr);
-#endif
-                }
+            dfs_seek(hnd, instrdata_ptr + offsetof(struct midiHdr, sample), SEEK_SET);
+            dfs_read(sample, sizeof(int8_t), length, hnd);
+            // it doesn't hurt to access sound data from a non-cached address
+            // it gets mixed to uncached buffer anyway
+            midiVoice[i].wave   = (int8_t*)((uintptr_t)sample | 0xA0000000);
+            midiVoice[i].index  = 0;
+            midiVoice[i].step   = 0x10000;
+            midiVoice[i].loop   = mhdr->loop;
+            midiVoice[i].length = mhdr->length;
+            midiVoice[i].ltvol  = 0;
+            midiVoice[i].rtvol  = 0;
+            midiVoice[i].base   = mhdr->base;
+            midiVoice[i].flags  = 0;
 
-                size_t length = mhdr->length >> 16;
-
-                int8_t* sample = (int8_t*)malloc(length);
-
-                if (sample)
-                {
-                    dfs_seek(hnd, instrdata_ptr + offsetof(struct midiHdr, sample), SEEK_SET);
-                    dfs_read(sample, sizeof(int8_t), length, hnd);
-                    // it doesn't hurt to access sound data from a non-cached address
-                    // it gets mixed to uncached buffer anyway
-                    midiVoice[i].wave   = (int8_t*)((uintptr_t)sample | 0xA0000000);
-                    midiVoice[i].index  = 0;
-                    midiVoice[i].step   = 0x10000;
-                    midiVoice[i].loop   = mhdr->loop;
-                    midiVoice[i].length = mhdr->length;
-                    midiVoice[i].ltvol  = 0;
-                    midiVoice[i].rtvol  = 0;
-                    midiVoice[i].base   = mhdr->base;
-                    midiVoice[i].flags  = 0;
-
-                    free(mhdr);
-                    dfs_close(hnd);
-                }
-#ifdef RANGECHECK
-                else
-                {
-                    I_Error("MUS_Register: could not allocate memory for sample.\n");
-                }
-#endif
-            }
+            free(mhdr);
+            dfs_close(hnd);
         }
     }
 

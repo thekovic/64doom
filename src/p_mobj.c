@@ -752,12 +752,9 @@ void P_SpawnMapThing (mapthing_t* mthing)
     for (i=0 ; i< NUMMOBJTYPES ; i++)
 	if (mthing->type == mobjinfo[i].doomednum)
 	    break;
-#ifdef RANGECHECK	
-    if (i==NUMMOBJTYPES)
-    {
-        I_Error("P_SpawnMapThing: Unknown type %i at (%i, %i)", mthing->type, mthing->x, mthing->y);
-	}	
-#endif	
+        	
+    assertf(i < NUMMOBJTYPES, "P_SpawnMapThing: Unknown type %i at (%i, %i)", mthing->type, mthing->x, mthing->y);
+    	
     // don't spawn keycards and players in deathmatch
     if (deathmatch && mobjinfo[i].flags & MF_NOTDMATCH)
 	return;

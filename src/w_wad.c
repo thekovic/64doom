@@ -106,7 +106,7 @@ void ExtractFileBase(char* path, char* dest)
 #ifdef RANGECHECK
         if (++length == 9)
         {
-            I_Error("Filename base of %s >8 chars", path);
+            assertf(true, "Filename base of %s >8 chars", path);
         }
 #endif
         *dest++ = toupper((int)*src++);
@@ -215,12 +215,7 @@ void W_AddFile(char *filename)
 {
     wadinfo_t      header;
     lumpinfo_t*    lump_p;
-    unsigned int   i;
-    int            handle = -1;
-    int            length;
-    int            startlump;
     filelump_t*    fileinfo;
-    int            storehandle;
 
     // open the file and add to directory
 
@@ -232,86 +227,39 @@ void W_AddFile(char *filename)
         reloadlump = numlumps;
     }
 
-    handle = dfs_open(filename);
-#ifdef RANGECHECK
-    if (-1 == handle)
-    {
-        I_Error("W_AddFile: DFS could not open file \"%s\"\n",filename);
-    }
-#endif    
-    startlump = numlumps;
+    int handle = dfs_open(filename);
+    assertf(handle > -1, "W_AddFile: DFS could not open file %s", filename);  
+    int startlump = numlumps;
 
     // WAD file
-#ifdef RANGECHECK
-    size_t size_r =    
-#endif    
-    dfs_read(&header, sizeof(header), 1, handle);
-#ifdef RANGECHECK
-    if (sizeof(header) != size_r)
-    {
-        I_Error("W_AddFile: DFS failed to read WAD header after opening.\n");
-    }    
-#endif
-
-#ifdef RANGECHECK        
-    if (strncmp(header.identification,"IWAD",4))
-    {
-        // Homebrew levels?
-        if (strncmp(header.identification,"PWAD",4))
-        {
-            I_Error("W_AddFile: %s != IWAD/PWAD in %s\n", header.identification, filename);
-        }
-        // ???modifiedgame = true;
-    }
-#endif
+    int size_r = dfs_read(&header, sizeof(header), 1, handle);
+    assertf(sizeof(header) == size_r, "W_AddFile: DFS failed to read WAD header after opening.");
+        
+    assertf(!strncmp(header.identification, "IWAD", 4), "W_AddFile: %s != IWAD header in %s.", header.identification, filename);
 
     header.numlumps = LONG(header.numlumps);
     header.infotableofs = LONG(header.infotableofs);
-    length = header.numlumps*sizeof(filelump_t);
+    int length = header.numlumps * sizeof(filelump_t);
     fileinfo = alloca(length);
-#ifdef RANGECHECK
-    if (0 == fileinfo)
-    {
-        I_Error("W_AddFile: unable to allocate memory for fileinfo read.\n");
-    }
-#endif
+    assertf(fileinfo, "W_AddFile: unable to allocate memory for fileinfo read.");
 
-#ifdef RANGECHECK
-    int sr = 
-#endif
-    dfs_seek(handle, header.infotableofs, SEEK_SET);
-#ifdef RANGECHECK
-    if (DFS_ESUCCESS != sr)
-    {
-        I_Error("W_AddFile: Error while seeking to infotableofs.\n");
-    }
-#endif
+    size_r = dfs_seek(handle, header.infotableofs, SEEK_SET);
+    assertf(size_r == DFS_ESUCCESS, "W_AddFile: Error while seeking to infotableofs.");
 
-#ifdef RANGECHECK
-    size_r = 
-#endif
-    dfs_read(fileinfo, sizeof(uint8_t), length, handle);
-#ifdef RANGECHECK
-    if (length != size_r)
-    {
-        I_Error("W_AddFile: Error while reading fileinfo.\n");
-    }
-#endif
+    size_r = dfs_read(fileinfo, sizeof(uint8_t), length, handle);
+    assertf(size_r == length, "W_AddFile: Error while reading fileinfo.");
 
     numlumps += header.numlumps;
 
-    lumpinfo = (lumpinfo_t *)realloc(lumpinfo, numlumps*sizeof(lumpinfo_t));
-    if (!lumpinfo)
-    {
-        I_Error("W_AddFile: Couldn't realloc lumpinfo");
-    }
+    lumpinfo = (lumpinfo_t*) realloc(lumpinfo, numlumps * sizeof(lumpinfo_t));
+    assertf(lumpinfo, "W_AddFile: Couldn't realloc lumpinfo");
 
     lump_p = &lumpinfo[startlump];
 
-    storehandle = reloadname ? -1 : handle;
+    int storehandle = reloadname ? -1 : handle;
 
     // hash the lumps
-    for (i=startlump ; i<numlumps ; i++,lump_p++, fileinfo++)
+    for (int i = startlump; i < numlumps; i++, lump_p++, fileinfo++)
     {
         lump_p->handle = storehandle;
         lump_p->position = LONG(fileinfo->filepos);
@@ -337,11 +285,7 @@ void W_AddFile(char *filename)
 void W_Reload (void)
 {
     wadinfo_t      header;
-    int            lumpcount;
     lumpinfo_t*    lump_p;
-    unsigned       i;
-    int            handle;
-    int            length;
     filelump_t*    fileinfo;
 
     if (!reloadname)
@@ -349,18 +293,16 @@ void W_Reload (void)
         return;
     }
 
-    if ( (handle = dfs_open(reloadname)) == -1 )
-    {
-        I_Error("W_Reload: couldn't open %s", reloadname);
-    }
+    int handle = dfs_open(reloadname);
+    assertf(handle > -1, "W_Reload: couldn't open %s", reloadname);
 
     dfs_seek(handle, 0, SEEK_SET);
 
     dfs_read(&header, sizeof(header), 1, handle);
 
-    lumpcount = LONG(header.numlumps);
+    int lumpcount = LONG(header.numlumps);
     header.infotableofs = LONG(header.infotableofs);
-    length = lumpcount*sizeof(filelump_t);
+    int length = lumpcount*sizeof(filelump_t);
     fileinfo = alloca(length);
 
     dfs_seek(handle, header.infotableofs, SEEK_SET);
@@ -369,7 +311,7 @@ void W_Reload (void)
     // Fill in lumpinfo
     lump_p = &lumpinfo[reloadlump];
 
-    for (i=reloadlump ; i<reloadlump+lumpcount; i++,lump_p++,fileinfo++)
+    for (int i = reloadlump; i < reloadlump + lumpcount; i++, lump_p++, fileinfo++)
     {
         if (lumpcache[i])
         {
@@ -412,22 +354,11 @@ void W_InitMultipleFiles(char** filenames)
         W_AddFile(*filenames);
     }
 
-#ifdef RANGECHECK
-    if (!numlumps)
-    {
-        I_Error("W_InitMultipleFiles: no files found");
-    }
-#endif
+    assertf(numlumps, "W_InitMultipleFiles: no files found");
     // set up caching
     size = numlumps * sizeof(*lumpcache);
-    lumpcache = (void **)malloc (size);
-
-#ifdef RANGECHECK
-    if (!lumpcache)
-    {
-        I_Error("W_InitMultipleFiles: Couldn't allocate lumpcache");
-    }
-#endif
+    lumpcache = (void **) malloc(size);
+    assertf(lumpcache, "W_InitMultipleFiles: Couldn't allocate lumpcache");
     memset(lumpcache, 0, size);
 }
 
@@ -462,18 +393,14 @@ int W_NumLumps(void)
 int W_CheckNumForName (char* name)
 {
     lumpinfo_t *testlump = (lumpinfo_t *)alloca(sizeof(lumpinfo_t));
-#ifdef RANGECHECK
-    if (0 == testlump)
-    {
-        I_Error("W_CheckNumForName: Could not allocate memory for hashtable check.\n");
-    }        
-#endif
+    assertf(testlump, "W_CheckNumForName: Could not allocate memory for hashtable check.");
+
     strncpy(testlump->name, name, 8);
     wadupr(testlump->name);
 
     void *ret_node;
     lumpinfo_t *retlump;
-    retlump = (lumpinfo_t *)is_in_hashtable( &ht, testlump, &ret_node );
+    retlump = (lumpinfo_t *) is_in_hashtable( &ht, testlump, &ret_node );
     if (!retlump)
     {
         return -1;
@@ -503,13 +430,8 @@ int W_GetNumForName (char* name)
 // Returns the buffer size needed to load the given lump.
 //
 int W_LumpLength (int lump)
-{
-#ifdef RANGECHECK    
-    if (lump >= numlumps)
-    {
-        I_Error("W_LumpLength: %i >= numlumps", lump);
-    }
-#endif
+{   
+    assertf(lump < numlumps, "W_LumpLength: %i >= numlumps", lump);
     return lumpinfo[lump].size;
 }
 
@@ -521,27 +443,17 @@ int W_LumpLength (int lump)
 //
 void W_ReadLump (int lump, void* dest)
 {
-#ifdef RANGECHECK
-    int            c;
-#endif
     lumpinfo_t*    l;
     int            handle;
 
-#ifdef RANGECHECK
-    if (lump >= numlumps)
-    {
-        I_Error("W_ReadLump: %i >= numlumps", lump);
-    }
-#endif
+    assertf(lump < numlumps, "W_ReadLump: %i >= numlumps", lump);
+    
     l = lumpinfo+lump;
 
     if (l->handle == -1)
     {
-        // reloadable file, so use open / read / close
-        if ((handle = dfs_open(reloadname)) == -1 )
-        {
-            I_Error("W_ReadLump: couldn't open %s", reloadname);
-        }
+        // reloadable file, so use open/read/close
+        assertf((handle = dfs_open(reloadname)) > -1, "W_ReadLump: couldn't open %s", reloadname);
     }
     else
     {
@@ -550,17 +462,9 @@ void W_ReadLump (int lump, void* dest)
 
     dfs_seek(handle, l->position, SEEK_SET);
 
-#ifdef RANGECHECK
-    c =
-#endif
-    dfs_read(dest, sizeof(uint8_t), l->size, handle);
+    int c = dfs_read(dest, sizeof(uint8_t), l->size, handle);
+    assertf(l->size == c, "W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
 
-#ifdef RANGECHECK
-    if (l->size != c)
-    {
-        I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
-    }
-#endif
     if(l->handle == -1)
     {
         dfs_close(handle);
@@ -573,26 +477,13 @@ void W_ReadLump (int lump, void* dest)
 //
 void* W_CacheLumpNum (int lump, int tag)
 {
-#ifdef RANGECHECK
-    byte*    ptr;
-    if ((unsigned)lump >= numlumps)
-    {
-        I_Error("W_CacheLumpNum: %i >= numlumps", lump);
-    }
-#endif    
+    assertf((unsigned)lump < numlumps, "W_CacheLumpNum: %i >= numlumps", lump);
+    
     if (!lumpcache[lump])
     {
         // read the lump in
-#ifdef RANGECHECK
-        ptr = 
-#endif        
-        Z_Malloc(W_LumpLength(lump), tag, &lumpcache[lump]);
-#ifdef RANGECHECK
-        if (ptr == NULL || ptr != lumpcache[lump])
-        {
-            I_Error("W_CacheLumpNum: !=cache allocation error on lump %i\n", lump);
-        }
-#endif
+        byte* ptr = Z_Malloc(W_LumpLength(lump), tag, &lumpcache[lump]);
+        assertf(ptr && ptr == lumpcache[lump], "W_CacheLumpNum: Cache allocation error on lump %i", lump);
         W_ReadLump(lump, lumpcache[lump]);
     }
     else

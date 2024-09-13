@@ -92,11 +92,10 @@ int ExpandTics (int low)
     }
     if (delta < -64)
     {
-    return (maketic&~0xff) + 256 + low;
+        return (maketic&~0xff) + 256 + low;
     }
-#ifdef RANGECHECK
-    I_Error("ExpandTics: strange value %i at maketic %i", low, maketic);
-#endif
+
+    assertf(true, "ExpandTics: strange value %i at maketic %i", low, maketic);
     return 0;
 }
 
@@ -119,12 +118,9 @@ void HSendPacket(int node, int flags)
     {
         return;
     }
-#ifdef RANGECHECK
-    if (!netgame)
-    {
-        I_Error("HSendPacket: Tried to transmit to another node");
-    }
-#endif
+
+    assertf(netgame, "HSendPacket: Tried to transmit to another node");
+
     doomcom->command = CMD_SEND;
     doomcom->remotenode = node;
     doomcom->datalength = NetbufferSize ();
@@ -246,8 +242,7 @@ void GetPackets (void)
         }
 
         // check for a remote game kill
-        if (netbuffer->checksum & NCMD_KILL)
-            I_Error ("GetPackets: Killed by network driver");
+        assertf(!(netbuffer->checksum & NCMD_KILL), "GetPackets: Killed by network driver");
 
         nodeforplayer[netconsole] = netnode;
 
@@ -373,8 +368,7 @@ void NetUpdate (void)
         {
             netbuffer->starttic = realstart = resendto[i];
             netbuffer->numtics = maketic - realstart;
-            if (netbuffer->numtics > BACKUPTICS)
-            I_Error ("NetUpdate: netbuffer->numtics > BACKUPTICS");
+            assertf(netbuffer->numtics <= BACKUPTICS, "NetUpdate: netbuffer->numtics > BACKUPTICS");
 
             resendto[i] = maketic - doomcom->extratics;
 
@@ -422,10 +416,7 @@ void CheckAbort(void)
     {
         ev = &events[eventtail];
 
-        if (ev->type == ev_keydown && ev->data1 == KEY_ESCAPE)
-        {
-            I_Error ("CheckAbort: Network game synchronization aborted.");
-        }
+        assertf(!(ev->type == ev_keydown && ev->data1 == KEY_ESCAPE), "CheckAbort: Network game synchronization aborted.");
     }
 }
 
@@ -522,26 +513,25 @@ return;
 
     if (doomcom->consoleplayer)
     {
-    // listen for setup info from key player
-    printf ("listening for network start info...\n");
-    while (1)
-    {
-        CheckAbort ();
-        if (!HGetPacket ())
-        continue;
-        if (netbuffer->checksum & NCMD_SETUP)
+        // listen for setup info from key player
+        printf("listening for network start info...\n");
+        while (1)
         {
-        if (netbuffer->player != VERSION)
-            I_Error ("D_ArbitrateNetStart: Different DOOM versions cannot play a net game!");
-        startskill = netbuffer->retransmitfrom & 15;
-        deathmatch = (netbuffer->retransmitfrom & 0xc0) >> 6;
-        nomonsters = (netbuffer->retransmitfrom & 0x20) > 0;
-        respawnparm = (netbuffer->retransmitfrom & 0x10) > 0;
-        startmap = netbuffer->starttic & 0x3f;
-        startepisode = netbuffer->starttic >> 6;
-        return;
+            CheckAbort ();
+            if (!HGetPacket ())
+            continue;
+            if (netbuffer->checksum & NCMD_SETUP)
+            {
+                assertf(netbuffer->player == VERSION, "D_ArbitrateNetStart: Different DOOM versions cannot play a net game!");
+                startskill = netbuffer->retransmitfrom & 15;
+                deathmatch = (netbuffer->retransmitfrom & 0xc0) >> 6;
+                nomonsters = (netbuffer->retransmitfrom & 0x20) > 0;
+                respawnparm = (netbuffer->retransmitfrom & 0x10) > 0;
+                startmap = netbuffer->starttic & 0x3f;
+                startepisode = netbuffer->starttic >> 6;
+                return;
+            }
         }
-    }
     }
     else
     {
@@ -628,8 +618,7 @@ void D_CheckNetGame (void)
     // I_InitNetwork sets doomcom and netgame
     I_InitNetwork ();
 //    printf("I_InitNetwork\n");
-    if (doomcom->id != DOOMCOM_ID)
-	I_Error ("D_CheckNetGame: Doomcom buffer invalid!");
+    assertf(doomcom->id == DOOMCOM_ID, "D_CheckNetGame: Doomcom buffer invalid!");
     
     netbuffer = &doomcom->data;
     consoleplayer = displayplayer = doomcom->consoleplayer;
@@ -701,9 +690,10 @@ int	frameon;
 int	frameskip[4];
 int	oldnettics;
 
-extern	boolean	advancedemo;
-    static int	oldentertics=0;
-void TryRunTics (void)
+extern boolean advancedemo;
+static int	oldentertics = 0;
+
+void TryRunTics(void)
 {
     int		i;
     int		lowtic;
@@ -720,7 +710,7 @@ void TryRunTics (void)
     oldentertics = entertic;
     
     // get available tics
-    NetUpdate ();
+    NetUpdate();
 	
     lowtic = MAXINT;
     numplaying = 0;
@@ -748,11 +738,6 @@ void TryRunTics (void)
 		
     frameon++;
 
-/*    if (debugfile)
-	fprintf (debugfile,
-		 "=======real: %i  avail: %i  game: %i\n",
-		 realtics, availabletics,counts);*/
-
     if (!demoplayback)
     {	
 		// ideally nettics[0] should be 1 - 3 tics above lowtic
@@ -764,80 +749,87 @@ void TryRunTics (void)
 				break;
 			}
 		}
-	//}
 	
-	if (consoleplayer == i)
-	{
-	    // the key player does not adapt
-	}
-	else
-	{
-	    if (nettics[0] <= nettics[nodeforplayer[i]])
-	    {
-			gametime--;
-			// printf ("-");
-	    }
-	    frameskip[frameon&3] = (oldnettics > nettics[nodeforplayer[i]]);
-	    oldnettics = nettics[0];
-	    if (frameskip[0] && frameskip[1] && frameskip[2] && frameskip[3])
-	    {
-			skiptics = 1;
-			// printf ("+");
-	    }
-	}
+        if (consoleplayer == i)
+        {
+            // the key player does not adapt
+        }
+        else
+        {
+            if (nettics[0] <= nettics[nodeforplayer[i]])
+            {
+                gametime--;
+                // printf ("-");
+            }
+
+            frameskip[frameon&3] = (oldnettics > nettics[nodeforplayer[i]]);
+            oldnettics = nettics[0];
+
+            if (frameskip[0] && frameskip[1] && frameskip[2] && frameskip[3])
+            {
+                skiptics = 1;
+                // printf ("+");
+            }
+        }
     }// demoplayback
 	
     // wait for new tics if needed
-    while (lowtic < gametic/*/ticdup*/ + counts)	
+    while (lowtic < gametic + counts)	
     {
-	NetUpdate ();   
-	lowtic = MAXINT;
-	
-	for (i=0 ; i<doomcom->numnodes ; i++)
-	    if (nodeingame[i] && nettics[i] < lowtic)
-		lowtic = nettics[i];
-	
-	if (lowtic < gametic/*/ticdup*/)
-	    I_Error ("TryRunTics: lowtic < gametic");
-				
-	// don't stay in here forever -- give the menu a chance to work
-	if (I_GetTime() - entertic >= 20)
-	{
-	    M_Ticker ();
-	    return;
-	} 
+        NetUpdate ();   
+        lowtic = MAXINT;
+        
+        for (i=0 ; i<doomcom->numnodes ; i++)
+        {
+            if (nodeingame[i] && nettics[i] < lowtic)
+            {
+                lowtic = nettics[i];
+            }
+        }
+            
+        assertf(lowtic >= gametic, "TryRunTics: lowtic < gametic");
+                    
+        // don't stay in here forever -- give the menu a chance to work
+        if (I_GetTime() - entertic >= 20)
+        {
+            M_Ticker ();
+            return;
+        } 
     }
     
     // run the count * ticdup dics
     while (counts--)
     {
-	for (i=0 ; i<ticdup ; i++)
-	{
-	    if (gametic/*/ticdup*/ > lowtic)
-		I_Error ("TryRunTics: gametic > lowtic");
-	    if (advancedemo)
-		D_DoAdvanceDemo ();
-	    M_Ticker ();
-	    G_Ticker ();
-	    gametic++;
-	    
-	    // modify command for duplicated tics
-	    if (i != ticdup-1)
-	    {
-		ticcmd_t	*cmd;
-		int			buf;
-		int			j;
-				
-		buf = (gametic/*/ticdup*/)%BACKUPTICS; 
-		for (j=0 ; j<MAXPLAYERS ; j++)
-		{
-		    cmd = &netcmds[j][buf];
-		    cmd->chatchar = 0;
-		    if (cmd->buttons & BT_SPECIAL)
-			cmd->buttons = 0;
-		}
-	    }
-	}
-	NetUpdate ();	// check for new console commands
+        for (i=0 ; i<ticdup ; i++)
+        {
+            assertf(gametic <= lowtic, "TryRunTics: gametic > lowtic");
+            if (advancedemo)
+            {
+                D_DoAdvanceDemo();
+            }
+            
+            M_Ticker ();
+            G_Ticker ();
+            gametic++;
+            
+            // modify command for duplicated tics
+            if (i != ticdup-1)
+            {
+                ticcmd_t* cmd;
+                        
+                int buf = (gametic) % BACKUPTICS;
+                for (int j=0; j < MAXPLAYERS; j++)
+                {
+                    cmd = &netcmds[j][buf];
+                    cmd->chatchar = 0;
+                    if (cmd->buttons & BT_SPECIAL)
+                    {
+                        cmd->buttons = 0;
+                    }
+                }
+            }
+        }
+        // check for new console commands
+        NetUpdate();
     }
 }

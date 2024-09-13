@@ -39,10 +39,7 @@ void DoomIsOver(void)
     cga_pal[15] = graphics_make_color(0xFF-20,0xFF-20,0xFF-20,0xFF);
 
     int ENDOOM_NUM = W_GetNumForName("ENDOOM");
-    if(-1 == ENDOOM_NUM)
-    {
-        I_Error("DoomIsOver: Could not load ENDOOM lump.\n");
-    }
+    assertf(ENDOOM_NUM > -1, "DoomIsOver: Could not load ENDOOM lump.");
 
     display_close();
 
