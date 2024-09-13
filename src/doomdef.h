@@ -25,9 +25,6 @@
 #define __DOOMDEF__
 
 #include <libdragon.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 /* Values for the second argument to access.
    These may be OR'd together.  */

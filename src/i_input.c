@@ -454,12 +454,7 @@ void n64_do_cheat(int cheat)
             }
             else
             {
-                // shut up compiler...
-                if (current_episode > 4)
-                {
-                    I_Error("n64_do_cheat: Invalid current_episode: %ld.", current_episode);
-                    return;
-                }
+                assertf(current_episode <= 4, "n64_do_cheat: Invalid current_episode: %ld.", current_episode);
 
                 if (current_map < 9)
                 {

@@ -417,7 +417,7 @@ R_StoreWallRange
 #ifdef RANGECHECK
     if (start >=viewwidth || start > stop)
     {
-        I_Error("Bad R_RenderWallRange: %i to %i", start, stop);
+        assertf(true, "Bad R_RenderWallRange: %i to %i", start, stop);
     }
 #endif
 

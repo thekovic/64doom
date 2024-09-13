@@ -74,19 +74,22 @@ void node_reorder(int numn, node_t *np)
     uint16_t*    rewrites = NULL;
 	
     if(qarray == NULL)
+    {
         qarray = (uint16_t*)Z_Malloc(numn*sizeof(uint16_t),PU_STATIC,0);
-    if(qarray == NULL)
-        I_Error("no queue space");
+    }
+    assertf(qarray, "node_reorder: no queue space");
 
     if (rewrites == NULL)
+    {
         rewrites = (uint16_t*)Z_Malloc(sizeof(uint16_t)*numn,PU_STATIC,0);
-    if(rewrites == NULL)
-        I_Error("no rewrite space");
+    }
+    assertf(rewrites, "node_reorder: no rewrite space");
 
     if (new_nodes == NULL)
+    {
         new_nodes = (node_t*)Z_Malloc (numn*sizeof(node_t),PU_LEVEL,0);	
-    if(new_nodes == NULL)
-        I_Error("no new node space");
+    }
+    assertf(new_nodes, "node_reorder: no new node space");
 
     qsize = 0;
     memset(new_nodes, 0,     numn*sizeof(node_t));

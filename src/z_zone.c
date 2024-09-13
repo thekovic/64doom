@@ -116,11 +116,8 @@ void Z_Free (void* ptr)
 
     block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
 
-#ifdef RANGECHECK
-    if (block->id != ZONEID) {
-        I_Error("Z_Free: freed a pointer without ZONEID");
-    }
-#endif
+    assertf(block->id == ZONEID, "Z_Free: freed a pointer without ZONEID");
+
     // address will always be 0x80000000 or higher
     if ((uintptr_t)block->user > (uintptr_t)0x7FFFFFFF)
     {
@@ -208,11 +205,8 @@ void* Z_Malloc (int size, int tag, void* user)
     do
     {
 #ifdef RANGECHECK
-        if (rover == start)
-        {
-            // scanned all the way around the list
-            I_Error("Z_Malloc: failed on allocation of %d bytes", size);
-        }
+        // scanned all the way around the list
+        assertf(rover != start, "Z_Malloc: failed on allocation of %d bytes", size);
 #endif
         if (rover->user)
         {
@@ -266,12 +260,7 @@ void* Z_Malloc (int size, int tag, void* user)
     }
     else
     {
-#ifdef RANGECHECK
-        if (tag >= PU_PURGELEVEL)
-        {
-            I_Error("Z_Malloc: an owner is required for purgable blocks");
-        }
-#endif
+        assertf(tag < PU_PURGELEVEL, "Z_Malloc: an owner is required for purgable blocks");
         // mark as in use, but unowned
         base->user = (void *)2;
     }
@@ -325,20 +314,9 @@ void Z_CheckHeap (void)
             // all blocks have been hit
             break;
         }
-#ifdef RANGECHECK
-        if ( (byte *)block + block->size != (byte *)block->next)
-        {
-            I_Error("Z_CheckHeap: block size does not touch the next block\n");
-        }
-        if ( block->next->prev != block)
-        {
-            I_Error("Z_CheckHeap: next block doesn't have proper back link\n");
-        }
-        if (!block->user && !block->next->user)
-        {
-            I_Error("Z_CheckHeap: two consecutive free blocks\n");
-        }
-#endif
+        assertf((byte *)block + block->size == (byte *)block->next, "Z_CheckHeap: block size does not touch the next block");
+        assertf( block->next->prev == block, "Z_CheckHeap: next block doesn't have proper back link");
+        assertf(block->user || block->next->user, "Z_CheckHeap: two consecutive free blocks");
     }
 }
 
@@ -353,16 +331,10 @@ void Z_ChangeTag (void* ptr, int tag)
     memblock_t*        block;
 
     block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
-#ifdef RANGECHECK
-    if (block->id != ZONEID)
-    {
-        I_Error("Z_ChangeTag: freed a pointer without ZONEID");
-    }
-    if (tag >= PU_PURGELEVEL && (unsigned)block->user < 0x100)
-    {
-        I_Error("Z_ChangeTag: an owner is required for purgable blocks");
-    }
-#endif
+    
+    assertf(block->id == ZONEID, "Z_ChangeTag: freed a pointer without ZONEID");
+    assertf(tag < PU_PURGELEVEL || (unsigned)block->user >= 0x100, "Z_ChangeTag: an owner is required for purgable blocks");
+    
     block->tag = tag;
 }
 

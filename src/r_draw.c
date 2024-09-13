@@ -259,7 +259,7 @@ void R_DrawTranslatedColumn (int cyl,int cyh,int cx)
     || cyl < 0
     || cyh >= SCREENHEIGHT)
     {
-        I_Error("R_DrawTranslatedColumn: %i to %i at %i", cyl, cyh, cx);
+        assertf(true, "R_DrawTranslatedColumn: %i to %i at %i", cyl, cyh, cx);
     }
 #endif
 
@@ -311,7 +311,7 @@ void R_DrawTranslatedColumnLow (int cyl,int cyh,int cx)
     || cyl < 0
     || cyh >= SCREENHEIGHT)
     {
-        I_Error("R_DrawTranslatedColumnLow: %i to %i at %i", cyl, cyh, cx);
+        assertf(true, "R_DrawTranslatedColumnLow: %i to %i at %i", cyl, cyh, cx);
     }
 #endif
 
@@ -353,7 +353,7 @@ void R_DrawColumn (int cyl,int cyh,int cx)
     || cyl < 0
     || cyh >= SCREENHEIGHT)
     {
-        I_Error("R_DrawColumn: %i to %i at %i", cyl, cyh, cx);
+        assertf(true, "R_DrawColumn: %i to %i at %i", cyl, cyh, cx);
     }
 #endif
 
@@ -400,7 +400,7 @@ void R_DrawColumnLow (int cyl,int cyh,int cx)
     || cyl < 0
     || cyh >= SCREENHEIGHT)
     {
-        I_Error("R_DrawColumnLow: %i to %i at %i", cyl, cyh, cx);
+        assertf(true, "R_DrawColumnLow: %i to %i at %i", cyl, cyh, cx);
     }
 #endif
 
@@ -463,7 +463,7 @@ void R_DrawSpan (int sx1, int sx2, int sy)
     || sx2>=SCREENWIDTH  
     || (unsigned)sy>SCREENHEIGHT)
     {
-    I_Error( "R_DrawSpan: %i to %i at %i",
+    assertf(true, "R_DrawSpan: %i to %i at %i",
          sx1,sx2,sy);
     }
 #endif
@@ -503,7 +503,7 @@ void R_DrawSpanLow (int sx1, int sx2, int sy)
     || sx2>=SCREENWIDTH  
     || (unsigned)sy>SCREENHEIGHT)
     {
-    I_Error( "R_DrawSpan: %i to %i at %i",sx1,sx2,sy);
+        assertf(true, "R_DrawSpan: %i to %i at %i",sx1,sx2,sy);
     }
 #endif 
 

@@ -132,7 +132,7 @@ R_MapPlane
         || x2>=viewwidth
         || (unsigned)y>viewheight)
     {
-        I_Error("R_MapPlane: %i, %i at %i",x1,x2,y);
+        assertf(true, "R_MapPlane: %i, %i at %i",x1,x2,y);
     }
 #endif
 
@@ -240,12 +240,9 @@ R_FindPlane
     {
         return check;
     }
-#ifdef RANGECHECK
-    if (lastvisplane - visplanes == MAXVISPLANES)
-    {
-        I_Error ("R_FindPlane: no more visplanes");
-    }
-#endif
+    
+    assertf(lastvisplane - visplanes < MAXVISPLANES, "R_FindPlane: no more visplanes");
+    
     lastvisplane++;
 
     check->height = height;
@@ -396,21 +393,9 @@ void R_DrawPlanes (void)
     int            stop;
     int            angle;
 
-#ifdef RANGECHECK
-    if (ds_p - drawsegs > MAXDRAWSEGS)
-    {
-        I_Error("R_DrawPlanes: drawsegs overflow (%i)", ds_p - drawsegs);
-    }
-    if (lastvisplane - visplanes > MAXVISPLANES)
-    {
-        I_Error("R_DrawPlanes: visplane overflow (%i)", lastvisplane - visplanes);
-    }
-
-    if (lastopening - openings > MAXOPENINGS)
-    {
-        I_Error("R_DrawPlanes: opening overflow (%i)", lastopening - openings);
-    }
-#endif
+    assertf(ds_p - drawsegs <= MAXDRAWSEGS, "R_DrawPlanes: drawsegs overflow (%i)", ds_p - drawsegs);
+    assertf(lastvisplane - visplanes <= MAXVISPLANES, "R_DrawPlanes: visplane overflow (%i)", lastvisplane - visplanes);
+    assertf(lastopening - openings <= MAXOPENINGS, "R_DrawPlanes: opening overflow (%i)", lastopening - openings);
 
 #if 0
     // sort visplanes by picnum

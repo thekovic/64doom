@@ -178,41 +178,31 @@ P_StartButton
   int		texture,
   int		time )
 {
-    int		i;
-    
     // See if button is already pressed
-    for (i = 0;i < MAXBUTTONS;i++)
+    for (int i = 0; i < MAXBUTTONS; i++)
     {
-	if (buttonlist[i].btimer
-	    && buttonlist[i].line == line)
-	{
-	    
-	    return;
-	}
+		if (buttonlist[i].btimer && buttonlist[i].line == line)
+		{
+			
+			return;
+		}
     }
     
-
-    
-    for (i = 0;i < MAXBUTTONS;i++)
+    for (int i = 0; i < MAXBUTTONS; i++)
     {
-	if (!buttonlist[i].btimer)
-	{
-	    buttonlist[i].line = line;
-	    buttonlist[i].where = w;
-	    buttonlist[i].btexture = texture;
-	    buttonlist[i].btimer = time;
-	    buttonlist[i].soundorg = (mobj_t *)&line->frontsector->soundorg;
-	    return;
-	}
+		if (!buttonlist[i].btimer)
+		{
+			buttonlist[i].line = line;
+			buttonlist[i].where = w;
+			buttonlist[i].btexture = texture;
+			buttonlist[i].btimer = time;
+			buttonlist[i].soundorg = (mobj_t *)&line->frontsector->soundorg;
+			return;
+		}
     }
-#ifdef RANGECHECK    
-    I_Error("P_StartButton: no button slots left!");
-#endif
+	 
+    assertf(true, "P_StartButton: no button slots left!");
 }
-
-
-
-
 
 //
 // Function that changes wall texture.

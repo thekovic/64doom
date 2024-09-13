@@ -245,7 +245,7 @@ void I_NetCmd (void)
     }
     else
     {
-        I_Error("I_NetCmd: Bad net cmd: %i\n", doomcom->command);
+        assertf(true, "I_NetCmd: Bad net cmd: %i\n", doomcom->command);
     }
 }
 

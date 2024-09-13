@@ -317,7 +317,7 @@ void P_UnArchiveThinkers (void)
 			
 	  default:
 	    {
-		I_Error("P_UnArchiveThinkers: Unknown tclass %i in savegame",tclass);
+			assertf(true, "P_UnArchiveThinkers: Unknown tclass %i in savegame", tclass);
 	    }
 	}
 	
@@ -581,7 +581,7 @@ void P_UnArchiveSpecials (void)
 				
 	  default:
 	    {
-		I_Error("P_UnarchiveSpecials: Unknown tclass %i in savegame", tclass);
+			assertf(true, "P_UnarchiveSpecials: Unknown tclass %i in savegame", tclass);
 	    }
 	}
 	

@@ -38,7 +38,7 @@
 #include "doomstat.h"
 #include "r_sky.h"
 
-#include  <alloca.h>
+//#include  <alloca.h>
 
 #include "r_data.h"
 
@@ -328,12 +328,9 @@ void R_GenerateLookup (int texnum)
 	 i++, patch++)
     {
 	realpatch = W_CacheLumpNum (patch->patch, PU_CACHE);
-#ifdef RANGECHECK
-    if (NULL == realpatch)
-    {
-        I_Error("R_GenerateLookup: NULL realpatch");
-    }
-#endif
+    
+    assertf(realpatch, "R_GenerateLookup: NULL realpatch");
+    
 	x1 = patch->originx;
 	x2 = x1 + SHORT(realpatch->width);
 
@@ -354,27 +351,18 @@ void R_GenerateLookup (int texnum)
 
     for (x=0 ; x<texture->width ; x++)
     {
-#ifdef RANGECHECK
-	if (!patchcount[x])
-	{
-        I_Error("R_GenerateLookup: column without a patch (%s)\n", texture->name);
-	    return;
-	}
-#endif
-	if (patchcount[x] > 1)
-	{
-	    // Use the cached block.
-	    collump[x] = -1;
-	    colofs[x] = texturecompositesize[texnum];
+        assertf(patchcount[x], "R_GenerateLookup: column without a patch (%s)\n", texture->name);
+        
+        if (patchcount[x] > 1)
+        {
+            // Use the cached block.
+            collump[x] = -1;
+            colofs[x] = texturecompositesize[texnum];
 
-#ifdef RANGECHECK
-	    if (texturecompositesize[texnum] > 0x10000-texture->height)
-	    {
-		    I_Error("R_GenerateLookup: texture %i is >64k", texnum);
-	    }
-#endif
-	    texturecompositesize[texnum] += texture->height;
-	}
+            assertf(texturecompositesize[texnum] <= 0x10000-texture->height, "R_GenerateLookup: texture %i is >64k", texnum);
+            
+            texturecompositesize[texnum] += texture->height;
+        }
     }
 }
 
@@ -537,12 +525,8 @@ void R_InitTextures (void)
 
 		offset = LONG(*directory);
 #ifdef RANGECHECK
-		if (offset > maxoff)
-		{
-			I_Error("R_InitTextures: bad texture directory");
-		}
-#endif
-
+		assertf(offset <= maxoff, "R_InitTextures: bad texture directory");
+#endif 
 		mtexture = (maptexture_t *) ( (byte *)maptex + offset);
 
 		texture = textures[i] =
@@ -566,13 +550,10 @@ void R_InitTextures (void)
 			patch->originx = SHORT(mpatch->originx);
 			patch->originy = SHORT(mpatch->originy);
 			patch->patch = patchlookup[SHORT(mpatch->patch)];
-#ifdef RANGECHECK
-			if (patch->patch == -1)
-			{
-				I_Error("R_InitTextures: Missing patch in texture %s", texture->name);
-			}
-#endif
+            
+			assertf(patch->patch > -1, "R_InitTextures: Missing patch in texture %s", texture->name);
 		}
+
 		texturecolumnlump[i] = Z_Malloc (texture->width*2, PU_STATIC,0);
 		texturecolumnofs[i] = Z_Malloc (texture->width*2, PU_STATIC,0);
 
@@ -705,10 +686,10 @@ int R_FlatNumForName (char* name)
 #ifdef RANGECHECK
     if (i == -1)
     {
-    char	namet[9];
-	namet[8] = 0;
-	memcpy (namet, name,8);
-	I_Error("R_FlatNumForName: %s not found", namet);
+        char	namet[9];
+        namet[8] = 0;
+        memcpy (namet, name,8);
+        assertf(i != -1, "R_FlatNumForName: %s not found", namet);
     }
 #endif
     return i - firstflat;
@@ -752,15 +733,10 @@ int	R_CheckTextureNumForName (char *name)
 //
 int	R_TextureNumForName (char* name)
 {
-    int		i;
-
-    i = R_CheckTextureNumForName (name);
-#ifdef RANGECHECK
-    if (i==-1)
-    {
-	I_Error("R_TextureNumForName: %s not found", name);
-    }
-#endif
+    int i = R_CheckTextureNumForName (name);
+    
+    assertf(i != -1, "R_TextureNumForName: %s not found", name);
+    
     return i;
 }
 

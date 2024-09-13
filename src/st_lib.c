@@ -105,14 +105,9 @@ void STlib_drawNum(st_number_t* n, boolean refresh)
     // clear the area
     x = n->x - numdigits*w;
 
-#ifdef RANGECHECK
     unsigned int c = y - ST_Y;
 
-    if (c > y)
-    {
-        I_Error("STlib_drawNum: n->y - ST_Y < 0; %d - %d < 0", y, ST_Y);
-    }
-#endif
+    assertf(c <= y, "STlib_drawNum: n->y - ST_Y < 0; %d - %d < 0", y, ST_Y);
 
     // if non-number, do not draw it
     if (num == 1994)

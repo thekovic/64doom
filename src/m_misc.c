@@ -102,25 +102,16 @@ M_ReadFile
     byte		*buf;
 
     handle = open(name, O_RDONLY | O_BINARY, 0666);
-    if (handle == -1)
-    {
-        I_Error("M_ReadFile: Couldn't read file %s", name);
-    }
+    assertf(handle > -1, "M_ReadFile: Couldn't read file %s", name);
 
-    if (fstat (handle,&fileinfo) == -1)
-    {
-        I_Error("M_ReadFile: Couldn't read file %s", name);
-    }
+    assertf(fstat(handle, &fileinfo) != -1, "M_ReadFile: Couldn't read file %s", name);
 
     length = fileinfo.st_size;
     buf = Z_Malloc (length, PU_STATIC, NULL);
     count = read (handle, buf, length);
     close (handle);
 	
-    if (count < length)
-    {
-        I_Error("M_ReadFile: Couldn't read file %s", name);
-    }
+    assertf(count >= length, "M_ReadFile: Couldn't read file %s", name);
 		
     *buffer = buf;
     return length;
@@ -402,93 +393,11 @@ WritePCXfile
   int		height,
   byte*		palette )
 {
-#if 0
-    int		i;
-    int		length;
-    pcx_t*	pcx;
-    byte*	pack;
-	
-    pcx = Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
-
-    pcx->manufacturer = 0x0a;		// PCX id
-    pcx->version = 5;			// 256 color
-    pcx->encoding = 1;			// uncompressed
-    pcx->bits_per_pixel = 8;		// 256 color
-    pcx->xmin = 0;
-    pcx->ymin = 0;
-    pcx->xmax = SHORT(width-1);
-    pcx->ymax = SHORT(height-1);
-    pcx->hres = SHORT(width);
-    pcx->vres = SHORT(height);
-    memset (pcx->palette,0,sizeof(pcx->palette));
-    pcx->color_planes = 1;		// chunky image
-    pcx->bytes_per_line = SHORT(width);
-    pcx->palette_type = SHORT(2);	// not a grey scale
-    memset (pcx->filler,0,sizeof(pcx->filler));
-
-
-    // pack the image
-    pack = &pcx->data;
-	
-    for (i=0 ; i<width*height ; i++)
-    {
-	if ( (*data & 0xc0) != 0xc0)
-	    *pack++ = *data++;
-	else
-	{
-	    *pack++ = 0xc1;
-	    *pack++ = *data++;
-	}
-    }
-    
-    // write the palette
-    *pack++ = 0x0c;	// palette ID byte
-    for (i=0 ; i<768 ; i++)
-	*pack++ = *palette++;
-    
-    // write output file
-    length = pack - (byte *)pcx;
-    M_WriteFile (filename, pcx, length);
-
-    Z_Free (pcx);
-#endif
 }
-
 
 //
 // M_ScreenShot
 //
 void M_ScreenShot (void)
-{
-#if 0
-    int		i;
-    byte*	linear;
-    char	lbmname[12];
-    
-    // munge planar buffer to linear
-    linear = screens[2];
-    I_ReadScreen (linear);
-    
-    // find a file name to save it to
-    strcpy(lbmname,"DOOM00.pcx");
-		
-    for (i=0 ; i<=99 ; i++)
-    {
-	lbmname[4] = i/10 + '0';
-	lbmname[5] = i%10 + '0';
-	if (access(lbmname,0) == -1)
-	    break;	// file doesn't exist
-    }
-    if (i==100)
-	I_Error ("M_ScreenShot: Couldn't create a PCX");
-    
-    // save the pcx file
-    WritePCXfile (lbmname, linear,
-		  SCREENWIDTH, SCREENHEIGHT,
-		  W_CacheLumpName ("PLAYPAL",PU_CACHE));
-	
-    players[consoleplayer].message = "screen shot";
-#endif    
+{  
 }
-
-
