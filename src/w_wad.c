@@ -176,7 +176,7 @@ unsigned long int hash(void *element, void *params)
 }
 
 
-// lumps for 64Doom-specific menu graphics (created with SLADE)
+// lumps for menu graphics added for this port (created with SLADE)
 static void* GAMMA_lmp;
 static void* RZHIGH_lmp;
 static void* RZLOW_lmp;
@@ -184,29 +184,29 @@ static void* VIDTTL_lmp;
 static void* VIDEOSET_lmp;
 static void* RESOLUTI_lmp;     
 
-#define LOAD_MENU_LUMP(menulump_name,menulump_ptr) \
-    {\
-    int menulump_fd = dfs_open(menulump_name); \
-    if (menulump_fd < 0) I_Error("W_Init: missing %s.\n", menulump_name); \
-    size_t menulump_len = dfs_size(menulump_fd); \
-    menulump_ptr = malloc(menulump_len); \
-    if (menulump_ptr == NULL) I_Error("W_Init: could not allocate memory for %s.\n", menulump_name); \
-    size_t menulump_read = dfs_read(menulump_ptr, sizeof(uint8_t), menulump_len, menulump_fd); \
-    if (menulump_len != menulump_read) I_Error("W_Init: could not read lump data for %s.\n", menulump_name); \
-    dfs_close(menulump_fd); \
-    }
+void W_LoadMenuLump(const char* menulump_name, void* menulump_ptr)
+{
+    int menulump_fd = dfs_open(menulump_name);
+    assertf(menulump_fd >= 0, "W_Init: Missing %s. (fd = %i)", menulump_name, menulump_fd);
+    size_t menulump_len = dfs_size(menulump_fd);
+    menulump_ptr = malloc(menulump_len);
+    assertf(menulump_ptr, "W_Init: Could not allocate memory for %s.", menulump_name);
+    size_t menulump_read = dfs_read(menulump_ptr, sizeof(uint8_t), menulump_len, menulump_fd);
+    assertf(menulump_len == menulump_read, "W_Init: could not read lump data for %s.\n", menulump_name);
+    dfs_close(menulump_fd);
+}
 
 void W_Init (void)
 {
     reloadname = 0;
     hashtable_init(&ht, 256, comp_keys, hash, 0);
 
-    LOAD_MENU_LUMP("./menulumps/gamma.bin",GAMMA_lmp);
-    LOAD_MENU_LUMP("./menulumps/rzhigh.bin",RZHIGH_lmp);
-    LOAD_MENU_LUMP("./menulumps/rzlow.bin",RZLOW_lmp);
-    LOAD_MENU_LUMP("./menulumps/vidttl.bin",VIDTTL_lmp);
-    LOAD_MENU_LUMP("./menulumps/videoset.bin",VIDEOSET_lmp);
-    LOAD_MENU_LUMP("./menulumps/resoluti.bin",RESOLUTI_lmp);
+    W_LoadMenuLump("/menulumps/gamma.bin", GAMMA_lmp);
+    W_LoadMenuLump("/menulumps/rzhigh.bin", RZHIGH_lmp);
+    W_LoadMenuLump("/menulumps/rzlow.bin", RZLOW_lmp);
+    W_LoadMenuLump("/menulumps/vidttl.bin", VIDTTL_lmp);
+    W_LoadMenuLump("/menulumps/videoset.bin", VIDEOSET_lmp);
+    W_LoadMenuLump("/menulumps/resoluti.bin", RESOLUTI_lmp);
 }
 
 
