@@ -114,7 +114,6 @@ int return_from_D_DoomMain = 0;
 //
 void I_Quit(void)
 {
-    timer_close();
     D_QuitNetGame();
     I_ShutdownSound();
     I_ShutdownMusic();

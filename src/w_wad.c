@@ -188,11 +188,12 @@ void W_LoadMenuLump(const char* menulump_name, void* menulump_ptr)
 {
     int menulump_fd = dfs_open(menulump_name);
     assertf(menulump_fd >= 0, "W_Init: Missing %s. (fd = %i)", menulump_name, menulump_fd);
-    size_t menulump_len = dfs_size(menulump_fd);
+    int menulump_len = dfs_size(menulump_fd);
+    assertf(menulump_len > 0, "W_Init: Could not size lump data for %s.\n", menulump_name);
     menulump_ptr = malloc(menulump_len);
     assertf(menulump_ptr, "W_Init: Could not allocate memory for %s.", menulump_name);
-    size_t menulump_read = dfs_read(menulump_ptr, sizeof(uint8_t), menulump_len, menulump_fd);
-    assertf(menulump_len == menulump_read, "W_Init: could not read lump data for %s.\n", menulump_name);
+    int menulump_read = dfs_read(menulump_ptr, sizeof(uint8_t), menulump_len, menulump_fd);
+    assertf(menulump_len == menulump_read, "W_Init: Could not read lump data for %s.\n", menulump_name);
     dfs_close(menulump_fd);
 }
 
