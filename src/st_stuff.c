@@ -62,8 +62,6 @@
 // STATUS BAR DATA
 //
 
-static uint16_t __attribute__((aligned(8))) stbar_pald[ST_WIDTH * ST_HEIGHT];
-
 // Palette indices.
 // For damage/bonus red-/gold-shifts
 #define STARTREDPALS        1
@@ -266,9 +264,6 @@ static uint16_t __attribute__((aligned(8))) stbar_pald[ST_WIDTH * ST_HEIGHT];
         
 // main player in game
 static player_t*    plyr; 
-
-// ST_Start() has just been called
-static boolean        st_firsttime;
 
 // used to execute ST_Init() only once
 static int        veryfirsttime = 1;
@@ -490,11 +485,19 @@ extern char*    mapnames[];
 void ST_Stop(void);
 
 extern void* bufptr;
-static inline void ST_refreshBackground()
+
+// buffer store for the rendered status bar background
+// static uint16_t __attribute__((aligned(8))) stbar_pald[ST_WIDTH * ST_HEIGHT];
+
+void ST_refreshBackground()
 {
     if (st_statusbaron)
     {
-        memcpy((uint16_t*)((uintptr_t)bufptr + (((ST_Y*SCREENWIDTH) + ST_X)*2)), stbar_pald, ST_WIDTH*ST_HEIGHT*2);
+        // copy status bar from buffer with memcpy
+        //memcpy((uint16_t*)((uintptr_t)bufptr + (((ST_Y*SCREENWIDTH) + ST_X)*2)), stbar_pald, ST_WIDTH*ST_HEIGHT*2);
+
+        // draw status bar background like normal (slower)
+        V_DrawPatch(ST_X, ST_Y, sbar);
     }
 }
 
@@ -513,7 +516,6 @@ ST_Responder (event_t* ev)
         {
         case AM_MSGENTERED:
             st_gamestate = AutomapState;
-            st_firsttime = true;
             break;
         
         case AM_MSGEXITED:
@@ -1115,8 +1117,6 @@ extern void I_RestorePalette(void);
 
 void ST_doRefresh(void)
 {
-    st_firsttime = false;
-
     I_SavePalette();
 
     // draw status bar background to off-screen buff
@@ -1128,30 +1128,15 @@ void ST_doRefresh(void)
     I_RestorePalette();
 }
 
-void ST_diffDraw(void)
-{
-    // update all widgets
-    ST_drawWidgets(false);
-}
-
-void ST_Drawer (boolean fullscreen, boolean refresh)
+void ST_Drawer (boolean fullscreen)
 {
     st_statusbaron = (!fullscreen) || automapactive;
-    st_firsttime = st_firsttime || refresh;
 
     // Do red-/gold-shifts from damage/items
     ST_doPaletteStuff();
 
-    // If just after ST_Start(), refresh all
-    if (st_firsttime)
-    {
-        ST_doRefresh();
-    }  
-    // Otherwise, update as little as possible
-    else
-    {
-        ST_diffDraw();
-    }  
+    // Draw status bar
+    ST_doRefresh();
 }
 
 void ST_loadGraphics(void)
@@ -1279,7 +1264,6 @@ void ST_initData(void)
 {
     int i;
 
-    st_firsttime = true;
     plyr = &players[consoleplayer];
 
     st_chatstate = StartChatState;
@@ -1490,6 +1474,7 @@ void ST_Init (void)
 {
     veryfirsttime = 0;
     ST_loadData();
-    V_DrawPatchBuf(0, 0, sbar, stbar_pald);
+    // V_DrawPatchBuf(0, 0, sbar, stbar_pald);
+    // stbar_surface = surface_make_linear(stbar_pald, FMT_CI8, ST_WIDTH, ST_HEIGHT);
     //screens[4] = (byte *) Z_Malloc(ST_WIDTH*ST_HEIGHT, PU_STATIC, 0);
 }

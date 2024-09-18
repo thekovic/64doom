@@ -195,7 +195,6 @@ void D_Display(void)
     static  boolean        viewactivestate = false;
     static  boolean        menuactivestate = false;
     static  boolean        inhelpscreensstate = false;
-    static  boolean        fullscreen = false;
     static  gamestate_t    oldgamestate = -1;
     static  int            borderdrawcount;
             int            nowtime;
@@ -204,15 +203,12 @@ void D_Display(void)
             int            wipestart;
             boolean        done;
             boolean        wipe;
-            boolean        redrawsbar;
 
     if (nodrawers)
     {
         // for comparative timing / profiling
         return;    
     }
-
-    redrawsbar = false;
 
     // change the view size if needed
     if (setsizeneeded)
@@ -252,24 +248,9 @@ void D_Display(void)
             if (automapactive)
             {
                 AM_Drawer();
-            }
+            } 
 
-            if (wipe || ((viewheight != SCREENHEIGHT) && fullscreen))
-            {
-                redrawsbar = true;
-            }
-
-            if (inhelpscreensstate && !inhelpscreens)
-            {
-                redrawsbar = false; // just put away the help screen
-            }   
-
-            //if(!automapactive) 
-            {
-                ST_Drawer((viewheight == SCREENHEIGHT), redrawsbar );
-            }
-
-            fullscreen = (viewheight == SCREENHEIGHT);
+            ST_Drawer(viewheight == SCREENHEIGHT);
 
             break;
         }
