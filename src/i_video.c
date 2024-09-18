@@ -33,13 +33,6 @@
 
 #include "doomdef.h"
 
-// function prototypes
-
-void I_SetPalette(byte* palette);
-
-void I_FinishUpdate(void);
-
-
 // globals
 
 // main display
