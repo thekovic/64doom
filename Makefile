@@ -57,7 +57,7 @@ $(BUILD_DIR)/$(IWAD_PREFIX).elf: $(OBJECT_FILES)
 $(IWAD_PREFIX).z64: $(BUILD_DIR)/$(IWAD_PREFIX).dfs
 
 clean:
-	rm -rf $(BUILD_DIR) filesystem/ *.z64
+	rm -rf $(BUILD_DIR) filesystem/ $(IWAD_PREFIX).z64
 
 -include $(wildcard $(BUILD_DIR)/*.d)
 
