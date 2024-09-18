@@ -245,7 +245,6 @@ int G_CmdChecksum (ticcmd_t* cmd)
 // 
 void G_BuildTiccmd (ticcmd_t* cmd) 
 { 
-    int          i; 
     boolean      strafe;
     boolean      bstrafe; 
     int          speed;
@@ -340,14 +339,16 @@ void G_BuildTiccmd (ticcmd_t* cmd)
         dclicks = 0;                   
     } 
 
-    // chainsaw overrides 
-    for (i=0 ; i<NUMWEAPONS-1 ; i++)        
-        if (gamekeydown['1'+i]) 
+    // cycle through all weapons and detect key presses
+    for (int i = 0 ;i < NUMWEAPONS; i++)
+    {
+        if (gamekeydown['1' + i]) 
         { 
             cmd->buttons |= BT_CHANGE; 
-            cmd->buttons |= i<<BT_WEAPONSHIFT; 
+            cmd->buttons |= i << BT_WEAPONSHIFT; 
             break; 
         }
+    }     
     
     // mouse
     if (mousebuttons[mousebforward]) 
