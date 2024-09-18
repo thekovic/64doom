@@ -184,15 +184,15 @@ static void* VIDTTL_lmp;
 static void* VIDEOSET_lmp;
 static void* RESOLUTI_lmp;     
 
-void W_LoadMenuLump(const char* menulump_name, void* menulump_ptr)
+void W_LoadMenuLump(const char* menulump_name, void** menulump_ptr)
 {
     int menulump_fd = dfs_open(menulump_name);
     assertf(menulump_fd >= 0, "W_Init: Missing %s. (fd = %i)", menulump_name, menulump_fd);
     int menulump_len = dfs_size(menulump_fd);
     assertf(menulump_len > 0, "W_Init: Could not size lump data for %s.\n", menulump_name);
-    menulump_ptr = malloc(menulump_len);
-    assertf(menulump_ptr, "W_Init: Could not allocate memory for %s.", menulump_name);
-    int menulump_read = dfs_read(menulump_ptr, sizeof(uint8_t), menulump_len, menulump_fd);
+    *menulump_ptr = malloc(menulump_len);
+    assertf(*menulump_ptr, "W_Init: Could not allocate memory for %s.", menulump_name);
+    int menulump_read = dfs_read(*menulump_ptr, sizeof(uint8_t), menulump_len, menulump_fd);
     assertf(menulump_len == menulump_read, "W_Init: Could not read lump data for %s.\n", menulump_name);
     dfs_close(menulump_fd);
 }
@@ -202,12 +202,12 @@ void W_Init (void)
     reloadname = 0;
     hashtable_init(&ht, 256, comp_keys, hash, 0);
 
-    W_LoadMenuLump("/menulumps/gamma.bin", GAMMA_lmp);
-    W_LoadMenuLump("/menulumps/rzhigh.bin", RZHIGH_lmp);
-    W_LoadMenuLump("/menulumps/rzlow.bin", RZLOW_lmp);
-    W_LoadMenuLump("/menulumps/vidttl.bin", VIDTTL_lmp);
-    W_LoadMenuLump("/menulumps/videoset.bin", VIDEOSET_lmp);
-    W_LoadMenuLump("/menulumps/resoluti.bin", RESOLUTI_lmp);
+    W_LoadMenuLump("/menulumps/gamma.bin", &GAMMA_lmp);
+    W_LoadMenuLump("/menulumps/rzhigh.bin", &RZHIGH_lmp);
+    W_LoadMenuLump("/menulumps/rzlow.bin", &RZLOW_lmp);
+    W_LoadMenuLump("/menulumps/vidttl.bin", &VIDTTL_lmp);
+    W_LoadMenuLump("/menulumps/videoset.bin", &VIDEOSET_lmp);
+    W_LoadMenuLump("/menulumps/resoluti.bin", &RESOLUTI_lmp);
 }
 
 
@@ -508,27 +508,27 @@ void* W_CacheLumpName (char* name, int tag)
     // these lumps get loaded from DFS in W_Init
     else
     {
-        if (0 == strncmp(name,"X_G",3))
+        if (!strncmp(name,"X_G",3))
         {
             return (void *)GAMMA_lmp;
         }
-        else if (0 == strncmp(name,"X_RZH",5))
+        else if (!strncmp(name,"X_RZH",5))
         {
             return (void *)RZHIGH_lmp;
         }
-        else if (0 == strncmp(name,"X_RZL",5))
+        else if (!strncmp(name,"X_RZL",5))
         {
             return (void *)RZLOW_lmp;
         }
-        else if (0 == strncmp(name, "X_VIDT", 6))
+        else if (!strncmp(name, "X_VIDT", 6))
         {
             return (void *)VIDTTL_lmp;
         }
-        else if (0 == strncmp(name,"X_VI",4))
+        else if (!strncmp(name,"X_VI",4))
         {
             return (void *)VIDEOSET_lmp;
         }
-        else if (0 == strncmp(name, "X_RESOLU",8))
+        else if (!strncmp(name, "X_RESOLU",8))
         {
             return (void *)RESOLUTI_lmp;
         }
