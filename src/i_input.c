@@ -43,12 +43,73 @@ uint32_t current_map;
 uint32_t current_episode;
 GameMode_t current_mode;
 
-static int pad_weapon = 1;
-static char weapons[8] = { '1', '2', '3', '3', '4', '5', '6', '7' };
+static int current_weapon = 2;
+static weapontype_t weapon_order[NUMWEAPONS] = {
+    wp_chainsaw,
+    wp_fist,
+    wp_pistol,
+    wp_shotgun,
+    wp_supershotgun,
+    wp_chaingun,
+    wp_missile,
+    wp_plasma,
+    wp_bfg
+};
+
+typedef enum
+{
+    WEAPON_CYCLE_NEXT,
+    WEAPON_CYCLE_PREVIOUS,
+    WEAPON_CYCLE_RELEASE
+} weapon_cycle_type_t;
+
+int cycle_weapon(weapon_cycle_type_t cycle_type)
+{
+    // just return the key based on current weapon when releasing
+    if (cycle_type == WEAPON_CYCLE_RELEASE)
+    {
+        return '1' + weapon_order[current_weapon];
+    }
+
+    // sync current_weapon with player_t if they desync
+    if (weapon_order[current_weapon] != players[0].readyweapon)
+    {
+        for (int i = 0; i < NUMWEAPONS; i++)
+        {
+            if (weapon_order[i] == players[0].readyweapon)
+            {
+                current_weapon = i;
+                break;
+            }
+        }
+    }
+    
+    int weapon_selection = current_weapon;
+    for (;;)
+    {
+        weapon_selection = (cycle_type == WEAPON_CYCLE_NEXT) ? weapon_selection + 1 : weapon_selection - 1;
+
+        // if bound hit, keep current weapon
+        if (weapon_selection < 0 || weapon_selection >= NUMWEAPONS)
+        {
+            break;
+        }
+
+        // select new weapon
+        if (players[0].weaponowned[weapon_order[weapon_selection]])
+        {
+            current_weapon = weapon_selection;
+            break;
+        }
+    }
+    
+    // return keycode of selected weapon
+    return '1' + weapon_order[current_weapon];
+}
+
 static int lz_count = 0;
 
 bool always_run = false;
-
 
 // this function maps analog stick position into mouse movement event
 void stick_to_mouse_event(int8_t stick_x, int8_t stick_y)
@@ -168,27 +229,13 @@ void pressed_key(joypad_buttons_t* pressed)
     }
     if (pressed->a && !pressed->b)
     {
-        pad_weapon -= 1;
-
-        if (pad_weapon < 0)
-        {
-            pad_weapon = 0;
-        }
-
-        doom_input_event.data1 = weapons[pad_weapon];
+        doom_input_event.data1 = cycle_weapon(WEAPON_CYCLE_PREVIOUS);
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
     if (pressed->b && !pressed->a)
     {
-        pad_weapon += 1;
-
-        if (pad_weapon > 7)
-        {
-            pad_weapon = 7;
-        }
-
-        doom_input_event.data1 = weapons[pad_weapon];
+        doom_input_event.data1 = cycle_weapon(WEAPON_CYCLE_NEXT);
         doom_input_event.type = ev_keydown;
         D_PostEvent(&doom_input_event);
     }
@@ -270,13 +317,13 @@ void released_key(joypad_buttons_t* released)
     }
     if (released->a && !released->b)
     {
-        doom_input_event.data1 = weapons[pad_weapon];
+        doom_input_event.data1 = cycle_weapon(WEAPON_CYCLE_RELEASE);
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }
     if (released->b && !released->a)
     {
-        doom_input_event.data1 = weapons[pad_weapon];
+        doom_input_event.data1 = cycle_weapon(WEAPON_CYCLE_RELEASE);
         doom_input_event.type = ev_keyup;
         D_PostEvent(&doom_input_event);
     }

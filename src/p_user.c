@@ -278,50 +278,25 @@ void P_PlayerThink (player_t* player)
 		
     if (cmd->buttons & BT_CHANGE)
     {
-	// The actual changing of the weapon is done
-	//  when the weapon psprite can do it
-	//  (read: not in the middle of an attack).
-	newweapon = (cmd->buttons&BT_WEAPONMASK)>>BT_WEAPONSHIFT;
-	
-	if (newweapon == wp_fist
-	    && player->weaponowned[wp_chainsaw]
-	    && !(player->readyweapon == wp_chainsaw
-		 && player->powers[pw_strength]))
-	{
-	    newweapon = wp_chainsaw;
-	}
-	
-	if ( (gamemode == commercial)
-	    && newweapon == wp_shotgun 
-	    && player->weaponowned[wp_supershotgun]
-	    && player->readyweapon != wp_supershotgun)
-	{
-	    newweapon = wp_supershotgun;
-	}
-	
+		// The actual changing of the weapon is done
+		//  when the weapon psprite can do it
+		//  (read: not in the middle of an attack).
+		newweapon = (cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT;
 
-	if (player->weaponowned[newweapon]
-	    && newweapon != player->readyweapon)
-	{
-	    // Do not go to plasma or BFG in shareware,
-	    //  even if cheated.
-	    if ((newweapon != wp_plasma
-		 && newweapon != wp_bfg)
-		|| (gamemode != shareware) )
-	    {
-		player->pendingweapon = newweapon;
-	    }
-	}
+		if (player->weaponowned[newweapon] && newweapon != player->readyweapon)
+		{
+			player->pendingweapon = newweapon;
+		}
     }
     
     // check for use
     if (cmd->buttons & BT_USE)
     {
-	if (!player->usedown)
-	{
-	    P_UseLines (player);
-	    player->usedown = true;
-	}
+		if (!player->usedown)
+		{
+			P_UseLines(player);
+			player->usedown = true;
+		}
     }
     else
 	player->usedown = false;
