@@ -51,6 +51,9 @@ void* bufptr;
 void I_StartFrame(void)
 {
     rdpq_attach(display_get(), NULL);
+    rspq_wait(); // This is a big hammer approach. Force the CPU to wait on the rdp before allowing the doom engine 
+                 // to make modifications to the single shared "accumulation" buffer. Otherwise tearing/flicker occurs.
+                 // Ideally doom either outputs directly to the surface without blits, or uses rdpq entirely to draw.
 }
 
 void I_ShutdownGraphics(void)
