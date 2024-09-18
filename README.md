@@ -1,6 +1,6 @@
-# ClassicDoomN64
+# LibdragonDOOM
 
-ClassicDoomN64 is a source port of classic PC DOOM 1/2 to the Nintendo 64 using the libdragon SDK.
+LibdragonDOOM is a source port of classic PC DOOM 1/2 to the Nintendo 64 using the libdragon SDK.
 
 ## Current features:
 
@@ -34,7 +34,7 @@ And run `make`.
 
 ## Saving the game (note: feature review needed)
 
-ClassicDoomN64 uses the Controller Pak to save and load your game progress from the Save Game / Load Game menu options.
+LibdragonDOOM uses the Controller Pak to save and load your game progress from the Save Game / Load Game menu options.
 
 One savegame slot is presented, mapped to a single note on the Controller Pak.
 

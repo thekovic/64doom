@@ -128,8 +128,8 @@ int main()
     joypad_init();
     rdpq_init();
 
-    printf("ClassicDoomN64 by the_kovic\n");
-    printf("https://github.com/thekovic/ClassicDoomN64");
+    printf("LibdragonDOOM by the_kovic\n");
+    printf("https://github.com/thekovic/LibdragonDOOM");
     printf("\nBased on 64Doom by jnmartin84\n");
     printf("ROM build: %s %s\n", __DATE__, __TIME__);
 
@@ -137,7 +137,7 @@ int main()
     {
         printf("***********************************\n");
         printf("Expansion Pak not found.\n");
-        printf("It is required to run ClassicDoomN64.\n");
+        printf("It is required to run LibdragonDOOM.\n");
         printf("Please turn off the Nintendo 64,\ninsert Expansion Pak, and try again.\n");
         printf("***********************************\n");
         return 1;
