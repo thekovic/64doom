@@ -47,7 +47,10 @@ planefunction_t ceilingfunc;
 //
 
 // Here comes the obnoxious "visplane".
-#define MAXVISPLANES    128
+
+// The original was 128 but i increased it for this port to 512 specifically for sigil
+// Romero fans rejoice as well as others who want to use heavier
+#define MAXVISPLANES    512
 visplane_t visplanes[MAXVISPLANES];
 visplane_t* lastvisplane;
 visplane_t* floorplane;
