@@ -1,11 +1,11 @@
 # Copy your IWAD to the IWAD_DIRECTORY folder and select corresponding prefix here
-IWAD_DIRECTORY = ~/Documents/iwads
+IWAD_DIRECTORY = iwads
 # Options: doom1 doomr doom doom2 plutonia tnt
 IWAD_PREFIX = doom
 # PWAD related shinanigans
 # This requires deutex until we have a better system.
 # Copy it in the root or leave it be if you installed it as a package ie used the AUR
-PWAD_DIRECTORY = ~/Documents/iwads
+PWAD_DIRECTORY = pwads
 PWAD_PREFIX = sigil
 
 SOURCE_DIR = src
