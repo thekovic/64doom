@@ -9,11 +9,12 @@ LibdragonDOOM is a source port of classic PC DOOM 1/2 to the Nintendo 64 using t
 - MUS music playback
 - All commercial IWADs playable
 - Saving to controller pak (note: feature review needed)
+- Pwad merging through Deutex
 
 ## Planned features:
 
 - Hardware-accelerated RDP renderer
-- PWAD loading support
+- Proper PWAD loading support
 - Wider music support
 - Saving to cartridge SRAM
 - Many, many bug fixes
@@ -31,6 +32,18 @@ Set two variables in the Makefile:
 - `IWAD_PREFIX` -- the actual IWAD filename prefix (one of `doom1` (Shareware version), `doomr` (Registered version), `doom` (Ultimate DOOM), `doom2`, `plutonia`, `tnt` - these are case sensitive. Must be lowercase and your WAD filename must be lowercase i.e. `doom2.wad`)
 
 And run `make`.
+
+## PWAD support
+
+Until this is reworked you can create merged iwads directly using the makefile. This depends on a fan favorite tool called Deutex
+
+Build it from source located here  and place the root of the repo.
+
+- `PWAD_DIRECTORY` -- the path to the directory that contains your PWAD file
+
+- `PWAD_PREFIX` -- the actual PWAD filename prefix. Again same thing as the normal IWAD prefix.
+
+You run `make pwad` then `make` as normal.
 
 ## Saving the game (note: feature review needed)
 
